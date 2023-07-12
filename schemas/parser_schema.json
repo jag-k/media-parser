@@ -1,0 +1,72 @@
+{
+  "title": "ParserSchema",
+  "type": "object",
+  "properties": {
+    "instagram": {
+      "title": "InstagramParser",
+      "description": "Parser for Instagram",
+      "type": "object",
+      "properties": {
+        "lamadava_saas_token": {
+          "title": "Lamadava Saas Token",
+          "description": "Set this for enable lamadava proxy",
+          "type": "string"
+        }
+      }
+    },
+    "reddit": {
+      "title": "RedditParser",
+      "description": "Parser for Reddit",
+      "type": "object",
+      "properties": {
+        "user_agent": {
+          "title": "User Agent",
+          "description": "User agent for Reddit API",
+          "default": "video downloader (by u/Jag_k)",
+          "type": "string"
+        },
+        "client_id": {
+          "title": "Client Id",
+          "description": "Client ID for Reddit API",
+          "type": "string"
+        },
+        "client_secret": {
+          "title": "Client Secret",
+          "description": "Client secret for Reddit API",
+          "type": "string"
+        }
+      },
+      "required": [
+        "client_id",
+        "client_secret"
+      ]
+    },
+    "tiktok": {
+      "title": "TiktokParser",
+      "description": "Parser for TikTok",
+      "type": "object",
+      "properties": {}
+    },
+    "twitter": {
+      "title": "TwitterParser",
+      "description": "Parser for Twitter",
+      "type": "object",
+      "properties": {
+        "twitter_bearer_token": {
+          "title": "Twitter Bearer Token",
+          "description": "Bearer token for Twitter API",
+          "type": "string"
+        }
+      },
+      "required": [
+        "twitter_bearer_token"
+      ]
+    },
+    "youtube": {
+      "title": "YoutubeParser",
+      "description": "Parser for YouTube",
+      "type": "object",
+      "properties": {}
+    }
+  }
+}
