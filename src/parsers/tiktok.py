@@ -267,7 +267,7 @@ if __name__ == "__main__":
     async def main():
         parser = TiktokParser()
         async with ClientSession() as session:
-            print(  # noqa: T201
+            print(
                 await parser.parse(
                     session,
                     "https://vm.tiktok.com/ZMYQFQBQ9/",

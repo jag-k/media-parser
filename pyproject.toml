@@ -54,7 +54,6 @@ select = [
     "N", # pep8-naming
     "ASYNC", # flake8-async
     "S", # flake8-bandit
-    "T20", # flake8-print
     "INT", # flake8-gettext
     "PTH", # flake8-use-pathlib
     "FLY", # flynt

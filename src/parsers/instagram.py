@@ -158,7 +158,7 @@ if __name__ == "__main__":
 
     async def main():
         async with aiohttp.ClientSession() as session:
-            print(  # noqa: T201
+            print(
                 await InstagramParser().parse(
                     session,
                     "https://instagram.com/reel/CqQGB-1ISIw/",
