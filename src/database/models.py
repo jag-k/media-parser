@@ -9,12 +9,13 @@ from .base import MongoModel
 class GroupedMediaModel(GroupedMedia, MongoModel[str]):
     id: str = Field(..., alias="_id", description="Origin URL of media")
 
+
     class Config(MongoModel.Config):
         collection = "medias"
 
     @classmethod
     def from_medias(cls, medias: list[Media]) -> Self:
-        self = super(GroupedMedia).from_medias(medias)
+        self = GroupedMedia.from_medias(medias)
 
         return cls(
             id=medias[0].original_url,

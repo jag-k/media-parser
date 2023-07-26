@@ -1,4 +1,3 @@
-import asyncio
 from typing import Generic, Self, TypeVar
 
 from async_lru import alru_cache
@@ -8,11 +7,11 @@ from motor.motor_asyncio import AsyncIOMotorCollection as Collection
 from motor.motor_asyncio import AsyncIOMotorDatabase as Database
 from pydantic import BaseConfig, BaseModel, Field
 from pymongo.errors import CollectionInvalid
-from settings import mongo_settings as settings
+
+from ..settings import mongo_settings as settings
 
 client = Client(settings.url)
 db: Database = client[settings.database]
-print(db.list_collection_names())
 
 
 @alru_cache
@@ -49,7 +48,7 @@ class MongoConfig(BaseConfig):
     collection: str | None = None
     allow_population_by_field_name = True
     arbitrary_types_allowed = True
-    json_encoders = {ObjectId: str}
+    json_encoders = {ObjectId: str}  # noqa: RUF012
 
 
 class MongoModel(BaseModel, Generic[ID]):

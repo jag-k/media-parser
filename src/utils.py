@@ -6,7 +6,7 @@ import sentry_sdk
 from sentry_sdk.tracing import Transaction
 
 
-def generate_timer(logger: logging.Logger | bool = None, transaction: Transaction | bool = None):
+def generate_timer(logger: logging.Logger | bool | None = None, transaction: Transaction | bool = None):
     return functools.partial(Timer, logger=logger, transaction=transaction)
 
 
@@ -20,7 +20,7 @@ def timeit(func):
 
 
 class Timer:
-    def __init__(self, name, logger: logging.Logger | bool = None, transaction: Transaction | bool = None):
+    def __init__(self, name, logger: logging.Logger | bool | None = None, transaction: Transaction | bool = None):
         self.name = name
 
         if logger and not isinstance(logger, logging.Logger):

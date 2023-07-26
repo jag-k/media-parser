@@ -32,7 +32,7 @@ class Media(BaseModel):
 class Video(Media):
     url: str = ""
     max_quality_url: str | None = None
-    audio_url: str | None = None  # А нужно ли оно?
+    audio_url: str | None = None  # Is it necessary?
     mime_type: str = "video/mp4"
 
     height: int | None = None
@@ -70,4 +70,20 @@ class GroupedMedia(BaseModel):
             audios=[m for m in medias if isinstance(m, Audio)],
             images=[m for m in medias if isinstance(m, Image)],
             videos=[m for m in medias if isinstance(m, Video)],
+        )
+
+    def __bool__(self):
+        return bool(self.audios or self.images or self.videos)
+
+    def flat(self) -> list[Media]:
+        return self.audios + self.images + self.videos
+
+    def __len__(self):
+        return len(self.audios + self.images + self.videos)
+
+    def __add__(self, other: Self):
+        return GroupedMedia(
+            audios=self.audios + other.audios,
+            images=self.images + other.images,
+            videos=self.videos + other.videos,
         )

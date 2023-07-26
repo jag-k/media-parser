@@ -6,13 +6,13 @@ from typing import Literal
 
 import aiohttp
 from aiohttp import ClientSession
-from pydantic import BaseModel
-
 from context import MAX_SIZE
 from models.medias import Image, Media, ParserType, Video
+from pydantic import BaseModel
+from utils import generate_timer
+
 from parsers.base import BaseParser as BaseParser
 from parsers.base import MediaCache
-from utils import generate_timer
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +53,6 @@ class TiktokParser(BaseParser, BaseModel, type=ParserType.TIKTOK):
             original_url = f"https://www.tiktok.com/{suffix}/{url_id}"
             logger.info("Get video id from: %s", original_url)
             video_location = await self._get_video_id(original_url)
-            print(video_location)
             if video_location is None:
                 return []
             author, video_id = video_location
@@ -264,15 +263,15 @@ class TiktokParser(BaseParser, BaseModel, type=ParserType.TIKTOK):
 
 
 if __name__ == "__main__":
+
     async def main():
         parser = TiktokParser()
         async with ClientSession() as session:
-            print(
+            print(  # noqa: T201
                 await parser.parse(
                     session,
                     "https://vm.tiktok.com/ZMYQFQBQ9/",
                 )
             )
-
 
     asyncio.run(main())

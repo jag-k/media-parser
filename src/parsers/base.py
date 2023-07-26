@@ -1,4 +1,4 @@
-import asyncio
+import asyncio  # noqa: I001
 import logging
 import re
 import time
@@ -7,9 +7,10 @@ from re import Match, Pattern
 from typing import Any, Self
 
 import aiohttp
+from pydantic import BaseConfig, BaseModel, Extra
+
 from database import GroupedMediaModel
 from models.medias import Media, ParserType
-from pydantic import BaseConfig, BaseModel, Extra
 from utils import generate_timer
 
 logger = logging.getLogger(__name__)
@@ -20,7 +21,7 @@ class MediaCache:
     def __init__(self, use_cache: bool = True):
         self._use_cache = use_cache
 
-    class FoundCache(Exception):
+    class FoundCache(Exception):  # noqa: N818
         def __init__(self, medias: list[Media], original_url: str, *args):
             super().__init__(medias, original_url, *args)
             self.medias = medias
@@ -54,7 +55,7 @@ class MediaCache:
 class BaseParser:
     TYPE: ParserType
 
-    def __init__(self, *args, config: dict[str, dict[str, Any]] = None, **kwargs):
+    def __init__(self, *args, config: dict[str, dict[str, Any]] | None = None, **kwargs):
         super().__init__(*args, **kwargs)
         if config is None:
             config = {}
@@ -104,7 +105,6 @@ class BaseParser:
             for reg_exp in parser.reg_exps()
             if (match := reg_exp.match(string))
         ]
-        print(gather)
 
         with time_it("parsing"):
             result: list[Media] = [j for i in await asyncio.gather(*gather) for j in i if j]
@@ -141,6 +141,9 @@ class BaseParser:
         schema = dict(jsonref.loads(ParserSchema.schema_json()))
         schema.pop("definitions", None)
         return json.dumps(schema, indent=2, ensure_ascii=False)
+
+    def __str__(self):
+        return f"<{self.__class__.__name__} {self.TYPE.value}>"
 
 
 async def _get_media(

@@ -13,9 +13,9 @@ from models import (
     StatusResponse,
 )
 from parsers import BaseParser
+from settings import PARSERS_PATH, sentry_settings
 from utils import Timer
 
-from settings import PARSERS_PATH, sentry_settings
 from server.app import api
 from server.sentry import send_feedback
 

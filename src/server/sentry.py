@@ -6,7 +6,6 @@ from sentry_sdk.integrations.logging import LoggingIntegration
 from sentry_sdk.integrations.pure_eval import PureEvalIntegration
 from sentry_sdk.integrations.pymongo import PyMongoIntegration
 from sentry_sdk.integrations.stdlib import StdlibIntegration
-
 from settings import BASE_PATH, sentry_settings, settings
 
 
@@ -34,7 +33,7 @@ def sentry_init():
     )
 
 
-def send_feedback(name: str, email: str, comments: str, event_id: str = None):
+def send_feedback(name: str, email: str, comments: str, event_id: str | None = None):
     if not sentry_settings.feedback_enabled:
         return False
 

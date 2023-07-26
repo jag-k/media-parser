@@ -2,26 +2,26 @@
 name = "media-parser"
 version = "1.0.0"
 description = "API for parsing media from social networks"
-authors = ["Jag_k <jag.konon@gmail.com>"]
+authors = ["Jag_k <me@jagk.dev>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-fastapi = "^0.97.0"
-aiohttp = "^3.8.4"
-sentry-sdk = {version = "^1.25.1", extras = ["fastapi", "httpx", "pure_eval", "pymongo"]}
+fastapi = "^0.100.0"
+aiohttp = "^3.8.5"
+sentry-sdk = { version = "^1.28.1", extras = ["fastapi", "httpx", "pure_eval", "pymongo"] }
 contextvars = "^2.4"
-pydantic = {version = "^1.10.9", extras = ["dotenv"]}
+pydantic = { version = "^1.10.9", extras = ["dotenv"] }
 jsonref = "^1.1.0"
 pytube = "^15.0.0"
-uvicorn = "^0.22.0"
+uvicorn = "^0.23.1"
 motor = "^3.1.2"
 async-lru = "^2.0.2"
 
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.0.272"
-black = {version = "^23.3.0", extras = ["d"]}
+ruff = "^0.0.280"
+black = { version = "^23.3.0", extras = ["d"] }
 pre-commit = "^3.3.2"
 motor-types = "^1.0.0b2"
 
@@ -35,13 +35,9 @@ include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
   | \.pytest_cache
-  | \.tox
-  | \.venv
-  | migrations
-  | app/fns_client/protocol
+  | \.mypy_cache
+  | config
 )/
 '''
 
@@ -55,4 +51,18 @@ select = [
     "UP", # pyupgrade
     "I", # isort
     "C4", # flake8-comprehensions
+    "N", # pep8-naming
+    "ASYNC", # flake8-async
+    "S", # flake8-bandit
+    "T20", # flake8-print
+    "INT", # flake8-gettext
+    "PTH", # flake8-use-pathlib
+    "FLY", # flynt
+    "RUF", # ruff-specific rules
 ]
+
+[tool.ruff.flake8-quotes]
+docstring-quotes = "double"
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401", "F403"]

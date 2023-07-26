@@ -54,19 +54,9 @@ class TwitterParser(BaseParser, BaseModel, type=ParserType.TWITTER):
         async with session.get(
             f"https://api.twitter.com/2/tweets/{tweet_id}",
             params={
-                "media.fields": ",".join(
-                    (
-                        "type",
-                        "variants",
-                    )
-                ),
-                "expansions": ",".join(
-                    (
-                        "attachments.media_keys",
-                        "author_id",
-                    )
-                ),
-                "user.fields": ",".join(("username",)),
+                "media.fields": "type,variants",
+                "expansions": "attachments.media_keys,author_id",
+                "user.fields": "username",
             },
             headers={"Authorization": f"Bearer {self.twitter_bearer_token}"},
         ) as response:

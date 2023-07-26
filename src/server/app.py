@@ -1,7 +1,7 @@
 from fastapi import APIRouter, FastAPI
 
-from settings import settings
-from server.sentry import sentry_init
+from ..server.sentry import sentry_init
+from ..settings import settings
 
 sentry_init()
 

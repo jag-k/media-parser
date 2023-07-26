@@ -6,12 +6,12 @@ from re import Match
 import aiohttp
 import httpx
 import pytube
+from context import get_max_size
+from models.medias import Media, ParserType, Video
 from pydantic import BaseModel
 from pytube import StreamQuery
 from pytube.exceptions import PytubeError
 
-from context import get_max_size
-from models.medias import Media, ParserType, Video
 from parsers.base import BaseParser as BaseParser
 from parsers.base import MediaCache
 
@@ -75,7 +75,7 @@ class YoutubeParser(BaseParser, BaseModel, type=ParserType.YOUTUBE):
 
         for st in streams:
             logger.info("Stream: %s", st)
-            file_size = int(httpx.head(st.url).headers.get("Content-Length", '0'))
+            file_size = int(httpx.head(st.url).headers.get("Content-Length", "0"))
             logger.info("Stream file size: %s", file_size)
             if max_size >= file_size > max_fs:
                 logger.info("Found suitable stream with filesize %s", file_size)
@@ -85,16 +85,18 @@ class YoutubeParser(BaseParser, BaseModel, type=ParserType.YOUTUBE):
         logger.info("Selected stream: %s", stream)
 
         try:
-            return [Video(
-                author=yt.author,
-                caption=yt.title,
-                thumbnail_url=yt.thumbnail_url,
-                type=self.TYPE,
-                url=stream.url,
-                original_url=original_url,
-                max_quality_url=max_quality_url,
-                mime_type=stream.mime_type,
-            )]
+            return [
+                Video(
+                    author=yt.author,
+                    caption=yt.title,
+                    thumbnail_url=yt.thumbnail_url,
+                    type=self.TYPE,
+                    url=stream.url,
+                    original_url=original_url,
+                    max_quality_url=max_quality_url,
+                    mime_type=stream.mime_type,
+                )
+            ]
         except PytubeError as err:
             logger.error("Failed to get video %r with error: %s", original_url, err)
             return []
