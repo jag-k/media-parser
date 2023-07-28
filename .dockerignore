@@ -1,0 +1,12 @@
+.*
+__pycache__/
+*.py[cod]
+dist/
+__pypackages__/
+config/
+
+schemas/
+Makefile
+README.md
+docker-compose.yml
+__init__.py

@@ -6,13 +6,13 @@ from typing import Literal
 
 import aiohttp
 from aiohttp import ClientSession
+from pydantic import BaseModel
+
 from context import MAX_SIZE
 from models.medias import Image, Media, ParserType, Video
-from pydantic import BaseModel
-from utils import generate_timer
-
 from parsers.base import BaseParser as BaseParser
 from parsers.base import MediaCache
+from utils import generate_timer
 
 logger = logging.getLogger(__name__)
 

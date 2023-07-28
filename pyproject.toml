@@ -1,9 +1,23 @@
 [tool.poetry]
 name = "media-parser"
-version = "1.0.0"
+version = "1.1.0"
 description = "API for parsing media from social networks"
 authors = ["Jag_k <me@jagk.dev>"]
+maintainers = ["Jag_k <me@jagk.dev>"]
+classifiers = [
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+homepage = "https://github.com/jag-k/media-parser#readme"
+repository = "https://github.com/jag-k/media-parser"
 readme = "README.md"
+license = "MIT"
+packages = [
+    { include = "media_parser/client.py" },
+    { include = "media_parser/models" },
+    { include = "media_parser/__init__.py" },
+]
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -18,12 +32,16 @@ uvicorn = "^0.23.1"
 motor = "^3.1.2"
 async-lru = "^2.0.2"
 
+[tool.poetry.extras]
+server = ["uvicorn", "motor", "fastapi", "contextvars", "pytube", "jsonref", "async-lru"]
+sentry = ["sentry-sdk"]
+all = ["uvicorn", "motor", "fastapi", "contextvars", "pytube", "jsonref", "async-lru", "sentry-sdk"]
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.0.280"
-black = { version = "^23.3.0", extras = ["d"] }
 pre-commit = "^3.3.2"
 motor-types = "^1.0.0b2"
+black = { version = "^23.7.0", extras = ["d"] }
 
 [build-system]
 requires = ["poetry-core"]
@@ -59,9 +77,11 @@ select = [
     "FLY", # flynt
     "RUF", # ruff-specific rules
 ]
+src = ["media_parser"]
 
 [tool.ruff.flake8-quotes]
 docstring-quotes = "double"
 
 [tool.ruff.per-file-ignores]
-"__init__.py" = ["F401", "F403"]
+"__init__.py" = ["E402", "F401", "F403", "F405", "F811", "N999"]
+"__main__.py" = ["E402", "F401", "F403", "F405", "F811", "N999"]

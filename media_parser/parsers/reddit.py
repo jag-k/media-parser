@@ -5,9 +5,9 @@ from urllib.parse import urlparse
 
 import aiohttp
 from aiohttp import InvalidURL
-from models.medias import Media, ParserType, Video
 from pydantic import BaseModel, Field
 
+from models.medias import Media, ParserType, Video
 from parsers.base import BaseParser as BaseParser
 from parsers.base import MediaCache
 

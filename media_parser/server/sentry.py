@@ -6,6 +6,7 @@ from sentry_sdk.integrations.logging import LoggingIntegration
 from sentry_sdk.integrations.pure_eval import PureEvalIntegration
 from sentry_sdk.integrations.pymongo import PyMongoIntegration
 from sentry_sdk.integrations.stdlib import StdlibIntegration
+
 from settings import BASE_PATH, sentry_settings, settings
 
 

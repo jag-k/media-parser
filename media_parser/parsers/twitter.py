@@ -3,9 +3,9 @@ import re
 from re import Match
 
 import aiohttp
-from models.medias import Media, ParserType, Video
 from pydantic import BaseModel, Field
 
+from models.medias import Media, ParserType, Video
 from parsers.base import BaseParser as BaseParser
 from parsers.base import MediaCache
 

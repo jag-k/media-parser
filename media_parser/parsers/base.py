@@ -1,4 +1,4 @@
-import asyncio  # noqa: I001
+import asyncio
 import logging
 import re
 import time

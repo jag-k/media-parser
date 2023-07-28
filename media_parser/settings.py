@@ -8,7 +8,7 @@ from pydantic import BaseSettings
 logger = logging.getLogger(__name__)
 
 BASE_PATH = Path(__file__).parent.parent.absolute()
-SRC_DIR = BASE_PATH / "src"
+SRC_DIR = BASE_PATH / "media_parser"
 CONFIG_DIR = Path(os.getenv("CONFIG_PATH", BASE_PATH / "config"))
 CONFIG_DIR.mkdir(exist_ok=True)
 PARSERS_PATH = CONFIG_DIR / "parsers.json"

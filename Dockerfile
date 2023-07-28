@@ -30,7 +30,7 @@ COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 
 WORKDIR /app
 
-COPY src /app
+COPY media_parser /app
 COPY pyproject.toml poetry.lock /
 
 EXPOSE $PORT

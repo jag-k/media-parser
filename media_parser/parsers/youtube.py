@@ -6,12 +6,12 @@ from re import Match
 import aiohttp
 import httpx
 import pytube
-from context import get_max_size
-from models.medias import Media, ParserType, Video
 from pydantic import BaseModel
 from pytube import StreamQuery
 from pytube.exceptions import PytubeError
 
+from context import get_max_size
+from models.medias import Media, ParserType, Video
 from parsers.base import BaseParser as BaseParser
 from parsers.base import MediaCache
 
