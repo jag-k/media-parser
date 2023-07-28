@@ -5,14 +5,27 @@ description = "API for parsing media from social networks"
 authors = ["Jag_k <me@jagk.dev>"]
 maintainers = ["Jag_k <me@jagk.dev>"]
 classifiers = [
+    "Development Status :: 4 - Beta",
+    "Framework :: FastAPI",
+    "Framework :: Pydantic",
+    "Framework :: Pydantic :: 1",
+    "Natural Language :: English",
+    "Natural Language :: Russian",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.11",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
+    "Typing :: Typed",
 ]
 homepage = "https://github.com/jag-k/media-parser#readme"
 repository = "https://github.com/jag-k/media-parser"
+documentation = "https://github.com/jag-k/media-parser#clients"
 readme = "README.md"
 license = "MIT"
+keywords = ["media-parser", "poetry", "tiktok", "youtube", "reddit", "twitter"]
+build = "poetry build"
 packages = [
     { include = "media_parser/client.py" },
     { include = "media_parser/models" },
