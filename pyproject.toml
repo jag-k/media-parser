@@ -25,7 +25,6 @@ documentation = "https://github.com/jag-k/media-parser#clients"
 readme = "README.md"
 license = "MIT"
 keywords = ["media-parser", "poetry", "tiktok", "youtube", "reddit", "twitter"]
-build = "poetry build"
 packages = [
     { include = "media_parser/client.py" },
     { include = "media_parser/models" },
