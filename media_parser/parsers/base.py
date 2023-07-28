@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 import re
 import time
@@ -7,10 +8,12 @@ from re import Match, Pattern
 from typing import Any, Self
 
 import aiohttp
+import yaml
 from pydantic import BaseConfig, BaseModel, Extra
 
 from database import GroupedMediaModel
 from models.medias import Media, ParserType
+from settings import PARSERS_PATH, PARSERS_YAML_PATH, PARSERS_YML_PATH
 from utils import generate_timer
 
 logger = logging.getLogger(__name__)
@@ -127,8 +130,6 @@ class BaseParser:
 
     @classmethod
     def generate_schema(cls):
-        import json
-
         import jsonref
 
         class ParserSchema(BaseModel):
@@ -158,3 +159,18 @@ async def _get_media(
     except MediaCache.FoundCache as e:
         logger.info("Found cache for %s", e.original_url)
         return e.medias
+
+
+def create_parser(config: dict[str, dict[str, Any]] | None = None) -> BaseParser:
+    if config is None:
+        if PARSERS_PATH.exists():
+            with PARSERS_PATH.open("r", encoding="utf-8") as f:
+                config = json.load(f)
+        elif PARSERS_YAML_PATH.exists():
+            with PARSERS_YAML_PATH.open("r", encoding="utf-8") as f:
+                config = yaml.safe_load(f)
+        elif PARSERS_YML_PATH.exists():
+            with PARSERS_YML_PATH.open("r", encoding="utf-8") as f:
+                config = yaml.safe_load(f)
+
+    return BaseParser(config=config)

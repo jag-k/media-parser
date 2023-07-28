@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "media-parser"
-version = "1.1.0"
+version = "1.1.1"
 description = "API for parsing media from social networks"
 authors = ["Jag_k <me@jagk.dev>"]
 maintainers = ["Jag_k <me@jagk.dev>"]
@@ -43,6 +43,7 @@ pytube = "^15.0.0"
 uvicorn = "^0.23.1"
 motor = "^3.1.2"
 async-lru = "^2.0.2"
+pyyaml = "^6.0.1"
 
 [tool.poetry.extras]
 server = ["uvicorn", "motor", "fastapi", "contextvars", "pytube", "jsonref", "async-lru"]

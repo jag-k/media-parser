@@ -1,5 +1,3 @@
-import json
-
 import aiohttp
 import sentry_sdk
 
@@ -13,14 +11,13 @@ from models import (
     ParserStatusResponse,
     StatusResponse,
 )
-from parsers import BaseParser
+from parsers import create_parser
 from server.app import api
 from server.sentry import send_feedback
-from settings import PARSERS_PATH, sentry_settings
+from settings import sentry_settings
 from utils import Timer
 
-with PARSERS_PATH.open("r", encoding="utf-8") as f:
-    PARSER = BaseParser(config=json.load(f))
+PARSER = create_parser()
 
 
 @api.get("/health")

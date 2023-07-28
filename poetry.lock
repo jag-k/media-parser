@@ -1409,4 +1409,4 @@ server = ["async-lru", "contextvars", "fastapi", "jsonref", "motor", "pytube", "
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "6f05bd69cf9c355b9b6e91d0f205e473a8186c694e2fafbfdd82a8b963def5cb"
+content-hash = "06479fae6f3935d0a9eeee01223fbbb415095746c9bf84b567f5883c2e7bd3e4"

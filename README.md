@@ -50,14 +50,15 @@ service:
 ### Parsers Configuration
 
 All configs for parsers stored in `config/parsers.json`. JSON Schema for
-this: [schemas/parser_schema.json](schemas/parser_schema.json).
+this: [schemas/parser_schema.json](https://github.com/jag-k/media-parser/blob/main/schemas/parser_schema.json).
 
-For enable parser, you need to add config for this parser.
-If parser haven't config, like `tiktok` set empty object (`{}`) to enable it.
+To enable parser, you need to add config for this parser.
+If parser hasn't config, like `tiktok` set an empty object (`{}`) to enable it.
 
 Example:
 
 ```json5
+// config/parsers.json
 {
     "$schema": "https://raw.github.com/jag-k/media-parsers/blob/main/schemas/parser_schema.json",
     "instagram": {
@@ -72,10 +73,29 @@ Example:
     },
     "tiktok": {},
     "twitter": {
-        "twitter_bearer_token": ""
+        "twitter_bearer_token": "asdasd"
     },
     "youtube": {}
 }
+```
+
+Or you can use YAML file like `config/parsers.yaml` or `config/parsers.yml`:
+
+```yaml
+# config/parsers.yml
+$schema: "https://raw.github.com/jag-k/media-parsers/blob/main/schemas/parser_schema.json"
+instagram:
+    # Optional
+    lamadava_saas_token: "asdasd"
+reddit:
+    client_id: ""
+    client_secret: ""
+    # Optional
+    user_agent: "video downloader (by u/Jag_k)"
+tiktok: {}
+twitter:
+    twitter_bearer_token: "asdasd"
+youtube: {}
 ```
 
 ## Usage
@@ -87,7 +107,7 @@ API documentation available on `/docs` endpoint.
 ### Installation
 
 ```bash
-poetry add git+https://github.com/jag-k/media-parser.git
+poetry add media-parser  # or pip install media-parser
 ```
 
 ### Usage

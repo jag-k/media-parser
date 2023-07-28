@@ -12,6 +12,8 @@ SRC_DIR = BASE_PATH / "media_parser"
 CONFIG_DIR = Path(os.getenv("CONFIG_PATH", BASE_PATH / "config"))
 CONFIG_DIR.mkdir(exist_ok=True)
 PARSERS_PATH = CONFIG_DIR / "parsers.json"
+PARSERS_YAML_PATH = CONFIG_DIR / "parsers.yaml"
+PARSERS_YML_PATH = CONFIG_DIR / "parsers.yml"
 PROJECT_TOML = BASE_PATH / "pyproject.toml"
 
 with PROJECT_TOML.open("rb") as f:
