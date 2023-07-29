@@ -1,7 +1,9 @@
 # Media Parser
 
 [![Documentation Status](https://readthedocs.org/projects/media-parser/badge/?version=latest)](https://media-parser.readthedocs.io/?badge=latest)
-
+[![Build Docker image](https://github.com/jag-k/media-parser/actions/workflows/docker-image.yml/badge.svg)](https://github.com/jag-k/media-parser/actions/workflows/docker-image.yml)
+[![PyPI publish](https://github.com/jag-k/media-parser/actions/workflows/pypi-publish.yml/badge.svg)](https://github.com/jag-k/media-parser/actions/workflows/pypi-publish.yml)
+[![PyPI version](https://img.shields.io/pypi/v/media-parser?logo=pypi&label=media-parser)](https://pypi.org/project/media-parsers/)
 
 Server for parse Media by URL.
 

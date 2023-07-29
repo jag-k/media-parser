@@ -75,16 +75,6 @@ html_theme_options = {
     "source_branch": "main",
     "source_directory": "docs/source",
 }
-html_sidebars = {
-    "**": [
-        "sidebar/scroll-start.html",
-        "sidebar/brand.html",
-        "sidebar/search.html",
-        "sidebar/navigation.html",
-        "sidebar/ethical-ads.html",
-        "sidebar/scroll-end.html",
-    ]
-}
 
 ogp_site_url = os.getenv("READTHEDOCS_CANONICAL_URL", poetry["documentation"])
 # ogp_image = "_static/og.png"
