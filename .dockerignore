@@ -5,6 +5,7 @@ dist/
 __pypackages__/
 config/
 
+docs/
 schemas/
 Makefile
 README.md

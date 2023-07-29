@@ -8,7 +8,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase as Database
 from pydantic import BaseConfig, BaseModel, Field
 from pymongo.errors import CollectionInvalid
 
-from ..settings import mongo_settings as settings
+from settings import mongo_settings as settings
 
 client = Client(settings.url)
 db: Database = client[settings.database]

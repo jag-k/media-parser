@@ -45,7 +45,10 @@ class MongoSettings(BaseSettings):
         env_prefix = "MONGO_"
 
 
-mongo_settings = MongoSettings()
+if os.getenv("READTHEDOCS", False):
+    mongo_settings = MongoSettings(url="mongodb://localhost:27017", database="media_parser")
+else:
+    mongo_settings = MongoSettings()
 
 
 class SentrySettings(BaseSettings):

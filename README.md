@@ -1,5 +1,8 @@
 # Media Parser
 
+[![Documentation Status](https://readthedocs.org/projects/media-parser/badge/?version=latest)](https://media-parser.readthedocs.io/?badge=latest)
+
+
 Server for parse Media by URL.
 
 ## Supported medias
@@ -115,7 +118,7 @@ poetry add media-parser  # or pip install media-parser
 ```python
 from media_parser import Client, FeedbackTypes
 
-client = Client("http://localhost:8000")
+client = Client(url="http://localhost:8000")
 
 
 async def main():
@@ -135,4 +138,4 @@ if __name__ == '__main__':
 
 ## License
 
-[MIT](LICENSE)
+[MIT](https://github.com/jag-k/media-parser/blob/main/LICENSE)

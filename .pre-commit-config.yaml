@@ -26,6 +26,8 @@ repos:
   hooks:
     - id: poetry-check
     - id: poetry-lock
+    - id: poetry-export
+      args: [ "--with", "docs", "--without-hashes", "-o", "docs/requirements.txt" ]
 
 - repo: https://github.com/floatingpurr/sync_with_poetry
   rev: "1.1.0"
