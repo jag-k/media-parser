@@ -11,16 +11,44 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
       - uses: actions/setup-python@v2
         with:
           python-version: "3.11"
+
       - name: Install poetry
         uses: abatilo/actions-poetry@v2.0.0
         with:
-          poetry-version: "1.5.1"
+          poetry-version: "1.6.1"
+
       - name: Publish to PyPI
         env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
         run: |
           poetry config pypi-token.pypi $PYPI_TOKEN
-          poetry publish --build
+          poetry publish --build --no-interaction && echo "published=1" >> "$GITHUB_ENV" || echo "published=0" >> "$GITHUB_ENV"
+
+      - name: Check if published
+        run: |
+          if [ "$published" = "1" ]; then
+            echo "Published to PyPI"
+          else
+            echo "Failed to publish to PyPI"
+            exit 1
+          fi
+#      - name: Build Dash Docset
+#        run: |
+#          poetry run python -m dash_docs.tools.generate_docset
+
+      - name: Make release with docset
+        uses: softprops/action-gh-release@v1
+        with:
+#          files: |
+#            dash-docset.tgz
+          tag_name: ${{ github.ref }}
+#          body: |
+#            Dash Docset for Dash ${{ github.ref }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

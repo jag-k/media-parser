@@ -11,10 +11,11 @@ import aiohttp
 import yaml
 from pydantic import BaseConfig, BaseModel, Extra
 
-from database import GroupedMediaModel
-from models.medias import Media, ParserType
-from settings import PARSERS_PATH, PARSERS_YAML_PATH, PARSERS_YML_PATH
-from utils import generate_timer
+from ..database import GroupedMediaModel
+from ..models import Media, ParserType
+from ..models.server import MediaNotFoundReason
+from ..settings import PARSERS_PATH, PARSERS_YAML_PATH, PARSERS_YML_PATH
+from ..utils import generate_timer
 
 logger = logging.getLogger(__name__)
 time_it = generate_timer(logger, True)
@@ -36,7 +37,7 @@ class MediaCache:
         data = await GroupedMediaModel.find(original_url)
         if data:
             raise self.FoundCache(
-                medias=data,
+                medias=data.flat(),
                 original_url=original_url,
             )
 
@@ -109,6 +110,9 @@ class BaseParser:
             if (match := reg_exp.match(string))
         ]
 
+        if not gather:
+            raise MediaNotFoundReason.not_matched.make_exc()
+
         with time_it("parsing"):
             result: list[Media] = [j for i in await asyncio.gather(*gather) for j in i if j]
 
@@ -117,6 +121,8 @@ class BaseParser:
             len(result),
             time.time() - start_time,
         )
+        if not result:
+            raise MediaNotFoundReason.service_response_empty.make_exc()
         return result
 
     def __init_subclass__(cls, **kwargs):

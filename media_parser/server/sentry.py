@@ -7,7 +7,7 @@ from sentry_sdk.integrations.pure_eval import PureEvalIntegration
 from sentry_sdk.integrations.pymongo import PyMongoIntegration
 from sentry_sdk.integrations.stdlib import StdlibIntegration
 
-from settings import BASE_PATH, sentry_settings, settings
+from ..settings import BASE_PATH, sentry_settings, settings
 
 
 def sentry_init():

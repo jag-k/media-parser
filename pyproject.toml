@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "media-parser"
-version = "1.1.3"
+version = "1.1.4"
 description = "API for parsing media from social networks"
 authors = ["Jag_k <me@jagk.dev>"]
 maintainers = ["Jag_k <me@jagk.dev>"]
@@ -33,15 +33,15 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.11"
-fastapi = "^0.100.0"
-aiohttp = "^3.8.5"
-sentry-sdk = { version = "^1.28.1", extras = ["fastapi", "httpx", "pure_eval", "pymongo"] }
+fastapi = "^0.104.0"
+aiohttp = "^3.8.6"
+sentry-sdk = { version = "^1.32.0", extras = ["fastapi", "httpx", "pure_eval", "pymongo"] }
 contextvars = "^2.4"
 pydantic = { version = "^1.10.9", extras = ["dotenv"] }
 jsonref = "^1.1.0"
 pytube = "^15.0.0"
 uvicorn = "^0.23.1"
-motor = "^3.1.2"
+motor = "^3.3.1"
 async-lru = "^2.0.2"
 pyyaml = "^6.0.1"
 
@@ -51,20 +51,28 @@ sentry = ["sentry-sdk"]
 all = ["uvicorn", "motor", "fastapi", "contextvars", "pytube", "jsonref", "async-lru", "sentry-sdk"]
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.0.280"
+ruff = "^0.1.0"
 pre-commit = "^3.3.2"
 motor-types = "^1.0.0b2"
 black = { version = "^23.7.0", extras = ["d"] }
+ruff-lsp = "^0.0.41"
 
+
+[tool.poetry.group.docs]
+optional = true
 
 [tool.poetry.group.docs.dependencies]
-sphinx = "^7.1.1"
+sphinx = "7.1.1"
 furo = "^2023.7.26"
 sphinxext-opengraph = "^0.8.2"
 sphinx-copybutton = "^0.5.2"
 sphinx-inline-tabs = "^2023.4.21"
 myst-parser = "^2.0.0"
-sphinx-autodoc2 = "^0.4.2"
+#sphinxcontrib-openapi = {git = "https://github.com/david-i-berry/sphinxcontrib-openapi.git"}
+#swagger-plugin-for-sphinx = "^3.2.0"
+#sphinxcontrib-redoc = "^1.6.0"
+sphinx-autodoc2 = {git = "https://github.com/jag-k/sphinx-autodoc2.git"}
+astroid = "2.15.8"  # sphinx-autodoc2 deps
 
 [build-system]
 requires = ["poetry-core"]

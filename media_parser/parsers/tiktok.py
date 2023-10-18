@@ -8,11 +8,11 @@ import aiohttp
 from aiohttp import ClientSession
 from pydantic import BaseModel
 
-from context import MAX_SIZE
-from models.medias import Image, Media, ParserType, Video
-from parsers.base import BaseParser as BaseParser
-from parsers.base import MediaCache
-from utils import generate_timer
+from ..context import MAX_SIZE
+from ..models import Image, Media, ParserType, Video
+from ..utils import generate_timer
+from .base import BaseParser as BaseParser
+from .base import MediaCache
 
 logger = logging.getLogger(__name__)
 
@@ -185,8 +185,9 @@ class TiktokParser(BaseParser, BaseModel, type=ParserType.TIKTOK):
             while "@" not in url and counter < 5:
                 async with session.get(url, allow_redirects=False) as resp:
                     url = resp.headers.get("Location", "").split("?", 1)[0]
+                    if url.startswith("/"):
+                        url = "https://www.tiktok.com" + url
                     counter += 1
-
         base = url.rsplit("/", 1)[-1]
         author = url.split("@", 1)[-1].split("/", 1)[0]
         if not base or not base.isdigit():

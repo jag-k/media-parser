@@ -7,9 +7,9 @@ import aiohttp
 from aiohttp import InvalidURL
 from pydantic import BaseModel, Field
 
-from models.medias import Media, ParserType, Video
-from parsers.base import BaseParser as BaseParser
-from parsers.base import MediaCache
+from ..models import Media, ParserType, Video
+from .base import BaseParser as BaseParser
+from .base import MediaCache
 
 logger = logging.getLogger(__name__)
 

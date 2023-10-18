@@ -10,10 +10,10 @@ from pydantic import BaseModel
 from pytube import StreamQuery
 from pytube.exceptions import PytubeError
 
-from context import get_max_size
-from models.medias import Media, ParserType, Video
-from parsers.base import BaseParser as BaseParser
-from parsers.base import MediaCache
+from ..context import get_max_size
+from ..models import Media, ParserType, Video
+from .base import BaseParser as BaseParser
+from .base import MediaCache
 
 logger = logging.getLogger(__name__)
 

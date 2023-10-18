@@ -7,9 +7,21 @@
       "description": "Parser for Instagram",
       "type": "object",
       "properties": {
-        "lamadava_saas_token": {
-          "title": "Lamadava Saas Token",
-          "description": "Set this for enable lamadava proxy",
+        "instagram_saas_token": {
+          "title": "Instagram Saas Token",
+          "description": "Set this for enable instagram proxy",
+          "type": "string"
+        },
+        "instagram_saas_api": {
+          "title": "Instagram Saas Api",
+          "description": "Set this to change instagram saas api",
+          "default": "https://api.lamadava.com",
+          "type": "string"
+        },
+        "user_agent": {
+          "title": "User Agent",
+          "description": "Set this to change user agent",
+          "default": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36",
           "type": "string"
         }
       }

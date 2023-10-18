@@ -1,6 +1,6 @@
 generate_parser_schemas:
 	@echo "Generating parser scheme..."
-	@cd media_parser && poetry run python -c "import parsers; print(parsers.BaseParser.generate_schema())" > ../schemas/parser_schema.json
+	@poetry run python -c "from media_parser.parsers import BaseParser; print(BaseParser.generate_schema())" > ./schemas/parser_schema.json
 	@echo "Done!"
 
 s_docs:

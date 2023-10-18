@@ -1,8 +1,8 @@
-import parsers.instagram
-import parsers.reddit
-import parsers.tiktok
-import parsers.twitter
-import parsers.youtube
-from parsers.base import BaseParser, create_parser
+from .base import BaseParser, create_parser
+from .instagram import *
+from .reddit import *
+from .tiktok import *
+from .twitter import *
+from .youtube import *
 
 __all__ = ("BaseParser", "create_parser")

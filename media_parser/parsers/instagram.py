@@ -7,9 +7,9 @@ from re import Match, Pattern
 import aiohttp
 from pydantic import BaseModel, Field
 
-from models.medias import Media, ParserType, Video
-from parsers.base import BaseParser as BaseParser
-from parsers.base import MediaCache
+from ..models import Media, ParserType, Video
+from .base import BaseParser as BaseParser
+from .base import MediaCache
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +17,10 @@ USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Ge
 
 
 class InstagramParser(BaseParser, BaseModel, type=ParserType.INSTAGRAM):
-    lamadava_saas_token: str | None = Field(default=None, description="Set this for enable lamadava proxy")
+    instagram_saas_token: str | None = Field(default=None, description="Set this for enable instagram proxy")
+    instagram_saas_api: str = Field(
+        default="https://api.lamadava.com", description="Set this to change instagram saas api"
+    )
     user_agent: str = Field(default=USER_AGENT, description="Set this to change user agent")
 
     def reg_exps(self) -> list[Pattern[str]]:
@@ -64,7 +67,7 @@ class InstagramParser(BaseParser, BaseModel, type=ParserType.INSTAGRAM):
         ) as response:
             data: dict = await response.json()
 
-        if data.get("status") == "fail" and self.lamadava_saas_token:
+        if data.get("status") == "fail" and self.instagram_saas_token:
             return await self.get_media_from_saas(
                 session=session,
                 cache=cache,
@@ -113,14 +116,14 @@ class InstagramParser(BaseParser, BaseModel, type=ParserType.INSTAGRAM):
         media_code: str,
         original_url: str,
     ) -> list[Media]:
-        if not self.lamadava_saas_token:
+        if not self.instagram_saas_token:
             return []
-        logger.info("Using lamadava saas for %r", original_url)
+        logger.info("Using instagram saas for %r", original_url)
 
         async with session.get(
-            "https://api.lamadava.com/v1/media/by/code",
+            f"{self.instagram_saas_api}/v1/media/by/code",
             params={"code": media_code},
-            headers={"x-access-key": self.lamadava_saas_token},
+            headers={"x-access-key": self.instagram_saas_token},
         ) as resp:
             if resp.status != 200:
                 logger.error("Error: %s %s", resp.status, await resp.text())

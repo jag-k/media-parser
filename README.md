@@ -1,5 +1,6 @@
 # Media Parser
 
+[![Poetry](https://img.shields.io/endpoint?url=https://python-poetry.org/badge/v0.json)](https://python-poetry.org/)
 [![Documentation Status](https://readthedocs.org/projects/media-parser/badge/?version=latest)](https://media-parser.readthedocs.io/?badge=latest)
 [![Build Docker image](https://github.com/jag-k/media-parser/actions/workflows/docker-image.yml/badge.svg)](https://github.com/jag-k/media-parser/actions/workflows/docker-image.yml)
 [![PyPI publish](https://github.com/jag-k/media-parser/actions/workflows/pypi-publish.yml/badge.svg)](https://github.com/jag-k/media-parser/actions/workflows/pypi-publish.yml)
@@ -68,7 +69,7 @@ Example:
     "$schema": "https://raw.github.com/jag-k/media-parsers/blob/main/schemas/parser_schema.json",
     "instagram": {
         // Optional
-        "lamadava_saas_token": "asdasd"
+        "instagram_saas_token": "asdasd"
     },
     "reddit": {
         "client_id": "",
@@ -91,7 +92,7 @@ Or you can use YAML file like `config/parsers.yaml` or `config/parsers.yml`:
 $schema: "https://raw.github.com/jag-k/media-parsers/blob/main/schemas/parser_schema.json"
 instagram:
     # Optional
-    lamadava_saas_token: "asdasd"
+    instagram_saas_token: "asdasd"
 reddit:
     client_id: ""
     client_secret: ""

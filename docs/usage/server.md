@@ -166,7 +166,7 @@ Example of config file:
 $schema: "https://raw.github.com/jag-k/media-parsers/blob/main/schemas/parser_schema.json"
 instagram:
     # Optional
-    lamadava_saas_token: "asdasd"
+    instagram_saas_token: "asdasd"
 reddit:
     client_id: ""
     client_secret: ""
@@ -188,7 +188,7 @@ youtube: {}
     "$schema": "https://raw.github.com/jag-k/media-parsers/blob/main/schemas/parser_schema.json",
     "instagram": {
         // Optional
-        "lamadava_saas_token": "asdasd"
+        "instagram_saas_token": "asdasd"
     },
     "reddit": {
         "client_id": "",
@@ -212,4 +212,5 @@ You can find more information about parsers props config in [parsers config docs
 :maxdepth: 2
 
 ../apidocs/parsers-config
+./schema
 ```

@@ -1,8 +1,7 @@
 import sentry_sdk
 from fastapi import Request, Response
 
-from context import context_vars, get_context_vars
-
+from ..context import context_vars, get_context_vars
 from .app import app
 
 

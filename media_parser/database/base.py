@@ -1,5 +1,7 @@
+import logging
 from typing import Generic, Self, TypeVar
 
+import pymongo
 from async_lru import alru_cache
 from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorClient as Client
@@ -8,10 +10,12 @@ from motor.motor_asyncio import AsyncIOMotorDatabase as Database
 from pydantic import BaseConfig, BaseModel, Field
 from pymongo.errors import CollectionInvalid
 
-from settings import mongo_settings as settings
+from ..settings import mongo_settings as settings
 
 client = Client(settings.url)
 db: Database = client[settings.database]
+
+logger = logging.Logger(__name__)
 
 
 @alru_cache
@@ -65,19 +69,31 @@ class MongoModel(BaseModel, Generic[ID]):
     async def find(cls, object_id: ID | None) -> Self | None:
         if not object_id:
             return None
-        col = await cls.collection()
-        res = await col.find_one({"_id": object_id})
+        try:
+            col = await cls.collection()
+            res = await col.find_one({"_id": object_id})
+        except pymongo.errors.OperationFailure:
+            logger.error("Can't find collection %s", object_id, exc_info=True)
+            return None
         if res is None:
             return None
         return cls.parse_obj(res)
 
     async def delete(self):
-        col = await self.collection()
-        return await col.delete_one({"_id": self.id})
+        try:
+            col = await self.collection()
+            return await col.delete_one({"_id": self.id})
+        except pymongo.errors.OperationFailure:
+            logger.error("Can't delete", exc_info=True)
+            return None
 
     async def save(self):
-        col = await self.collection()
-        old = await col.find_one({"_id": self.id})
-        if old:
-            return await col.update_one({"_id": self.id}, {"$set": self.dict(by_alias=True)})
-        return await col.insert_one(self.dict(by_alias=True))
+        try:
+            col = await self.collection()
+            old = await col.find_one({"_id": self.id})
+            if old:
+                return await col.update_one({"_id": self.id}, {"$set": self.dict(by_alias=True)})
+            return await col.insert_one(self.dict(by_alias=True))
+        except pymongo.errors.OperationFailure:
+            logger.error("Can't save", exc_info=True)
+            return None

@@ -1,4 +1,4 @@
-from server import api, app
+from media_parser.server import api, app
 
 app.include_router(api)
 

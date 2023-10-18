@@ -23,6 +23,7 @@ class ParserType(str, Enum):
     YOUTUBE = "YouTube"
     REDDIT = "Reddit"
     INSTAGRAM = "Instagram"
+    VK = "VK"
 
 
 class Media(BaseModel):
@@ -31,6 +32,7 @@ class Media(BaseModel):
 
     :param type: Type source of media (TikTok, Twitter, YouTube, Reddit, Instagram)
     :param original_url: Original URL of media
+    :param url: URL to media content
     :param caption: Caption of media
     :param thumbnail_url: URL to thumbnail
     :param author: Author of media
@@ -44,12 +46,15 @@ class Media(BaseModel):
 
     type: ParserType
     original_url: str
+    url: str = ""
     caption: str | None = None
     thumbnail_url: str | None = None
     author: str | None = None
     extra_description: str = ""
     language: str | None = None
     mime_type: str | None = None
+
+    headers: dict[str, str] = Field(default_factory=dict, exclude=True)
 
     def __hash__(self):
         return hash(self.original_url)
@@ -59,7 +64,6 @@ class Video(Media):
     """
     Video media.
 
-    :param url: URL to video
     :param max_quality_url: URL to max quality video
     :info max_quality_url: If max quality video is not available, max_quality_url is equal to url
     :param audio_url: URL to audio from video
@@ -69,7 +73,6 @@ class Video(Media):
     :param duration: Duration of video
     """
 
-    url: str = ""
     max_quality_url: str | None = None
     audio_url: str | None = None  # Is it necessary?
     mime_type: str = "video/mp4"
@@ -86,14 +89,12 @@ class Image(Media):
     """
     Image media.
 
-    :param url: URL to image
     :param max_quality_url: URL to max quality image
     :info max_quality_url: If max quality image is not available, max_quality_url is equal to url
     :param height: Height of image
     :param width: Width of image
     """
 
-    url: str
     max_quality_url: str | None = None
     mime_type: str = "image/jpeg"
     height: int | None = None
@@ -110,11 +111,9 @@ class Audio(Media):
     """
     Audio media.
 
-    :param url: URL to audio
     :param mime_type: MIME type of audio
     """
 
-    url: str = ""
     mime_type: str = "audio/mpeg"
 
     def __bool__(self) -> bool:
@@ -177,3 +176,16 @@ class GroupedMedia(BaseModel):
             images=self.images + other.images,
             videos=self.videos + other.videos,
         )
+
+    @classmethod
+    def merge(cls, *grouped_medias: "GroupedMedia") -> "GroupedMedia":
+        return GroupedMedia(
+            audios=[audio for groups in grouped_medias for audio in groups.audios],
+            images=[image for groups in grouped_medias for image in groups.images],
+            videos=[video for groups in grouped_medias for video in groups.videos],
+        )
+
+
+class GroupedMediaResult(GroupedMedia):
+    event_id: str | None = None
+    request_url: str | None = None

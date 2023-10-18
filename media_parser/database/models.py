@@ -2,8 +2,7 @@ from typing import Self
 
 from pydantic import Field
 
-from models import GroupedMedia, Media
-
+from ..models import GroupedMedia, Media
 from .base import MongoModel
 
 

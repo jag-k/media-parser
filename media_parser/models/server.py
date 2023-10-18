@@ -3,7 +3,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, HttpUrl
 
-from .medias import ParserType
+from .medias import GroupedMedia, ParserType
 
 __all__ = (
     "StatusResponse",
@@ -14,6 +14,35 @@ __all__ = (
     "FeedbackRequest",
     "FeedbackResponse",
 )
+
+
+class MediaNotFoundReasons(BaseModel):
+    type: str
+    message: str
+
+
+class MediaNotFoundReason(Enum):
+    not_matched = MediaNotFoundReasons(type="not_matched", message="Media not matched on any parser")
+    service_response_empty = MediaNotFoundReasons(type="service_response_empty", message="Service(s) response empty")
+
+    def make_exc(self) -> "MediaNotFoundError":
+        return MediaNotFoundError(MediaNotFoundResponse(error=self))
+
+
+class MediaNotFoundResponse(BaseModel):
+    status: Literal["error"] = "error"
+    error: MediaNotFoundReason
+
+
+class MediaNotFoundError(Exception):
+    def __init__(self, response: MediaNotFoundResponse):
+        self.response = response
+        super().__init__(response.error.value.message)
+
+
+class GroupedMediaResponse(BaseModel):
+    status: Literal["ok"] = "ok"
+    result: GroupedMedia = Field(default_factory=GroupedMedia)
 
 
 class StatusResponse(BaseModel):

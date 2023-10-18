@@ -3,21 +3,28 @@ import json
 import os
 import re
 import sys
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 from tomllib import load
 
+import yaml
 from sphinx.application import Sphinx
 
 PACKAGE_NAME = "media_parser"
-BASE_PATH = Path(__file__).resolve().parent.parent
-SPHINX_SOURCE_PATH = BASE_PATH / "docs"
+SPHINX_SOURCE_PATH = Path(__file__).resolve().parent
+BASE_PATH = SPHINX_SOURCE_PATH.parent
+SPEC_PATH = SPHINX_SOURCE_PATH / "specs"
+SPEC_PATH.mkdir(exist_ok=True, parents=True)
 
 with (BASE_PATH / "pyproject.toml").open("rb") as f:
     poetry = load(f)["tool"]["poetry"]
 
 REPO = poetry.get("repository", "")
+PROJECT_NAME = poetry.get("name", "media_parser")
 
 SRC_PATH = BASE_PATH / PACKAGE_NAME
+
+sys.path.append(BASE_PATH.as_posix())
+sys.path.append(SRC_PATH.as_posix())
 
 project = "Media Parser"
 full_author = poetry.get("authors", ["Jag_k"])[0]
@@ -32,6 +39,9 @@ extensions = [
     "autodoc2",
     "sphinx_copybutton",
     "sphinxext.opengraph",
+    # "sphinxcontrib.openapi",
+    # "sphinxcontrib.redoc",
+    # "swagger_plugin_for_sphinx",
     "sphinx_inline_tabs",
     "sphinx.ext.duration",
     "sphinx.ext.coverage",
@@ -65,11 +75,16 @@ html_theme_options = {
                 "0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 "
                 ".27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95"
                 ".29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 "
-                '8c0-4.42-3.58-8-8-8z"></path>'
-                "</svg>"
+                '8c0-4.42-3.58-8-8-8z"></path></svg>'
             ),
             "class": "",
         },
+        # {
+        #     "name": "Dash Docset",
+        #     "url": f"/_static/{PROJECT_NAME}.zip",
+        #     "html": '<img src="https://kapeli.com/img/dash-hr.png" width="30" height="28">',
+        #     "class": "",
+        # },
     ],
     "source_repository": REPO,
     "source_branch": "main",
@@ -91,7 +106,13 @@ ogp_enable_meta_description = True
 # python_display_short_literal_types = True
 # python_use_unqualified_type_names = True
 
-myst_enable_extensions = ["fieldlist", "deflist", "attrs_block", "tasklist", "attrs_inline"]
+myst_enable_extensions = [
+    "fieldlist",
+    "deflist",
+    "attrs_block",
+    "tasklist",
+    "attrs_inline",
+]
 myst_number_code_blocks = ["python"]
 myst_heading_anchors = 3
 
@@ -129,45 +150,21 @@ This page contains auto-generated API reference documentation [^1].
 # https://github.com/sphinx-extensions2/sphinx-autodoc2/pull/29
 autodoc2_index_filename = "index.md"
 
-import autodoc2.sphinx.extension
-from autodoc2.sphinx.extension import run_autodoc_package
-from autodoc2.sphinx.utils import load_config
-
-
-def run_autodoc(app: Sphinx) -> None:
-    """The primary sphinx call back event for sphinx."""
-    config = load_config(app)
-    top_level_modules = []
-    for i, _ in enumerate(config.packages):
-        mod_path = run_autodoc_package(app, config, i)
-        if mod_path is not None:
-            top_level_modules.append(mod_path)
-    # create the index page
-    if top_level_modules and config.index_template:
-        import jinja2
-
-        content_str = jinja2.Template(config.index_template).render(top_level=top_level_modules)
-        index_path = Path(app.srcdir) / PurePosixPath(config.output_dir) / autodoc2_index_filename
-        if not (index_path.exists() and index_path.read_text("utf8") == content_str):
-            index_path.parent.mkdir(parents=True, exist_ok=True)
-            index_path.write_text(content_str, "utf8")
-
-
-autodoc2.sphinx.extension.run_autodoc = run_autodoc
-
 
 def setup(app: Sphinx):
-    from pygments.lexers import JsonLexer
+    from main import app as _app
+    from pygments.lexers.data import JsonLexer
 
     app.add_lexer("json5", JsonLexer)
     app.connect("builder-inited", parser_config)
+    api = _app.openapi()
+    with (SPEC_PATH / "openapi.json").open("w", encoding="utf-8") as f:
+        json.dump(api, f, ensure_ascii=False, indent=2)
+    with (SPEC_PATH / "openapi.yml").open("w", encoding="utf-8") as f:
+        yaml.dump(api, f, allow_unicode=True)
 
 
 def parser_config(_: Sphinx):
-    sys.path.append(SRC_PATH.as_posix())
-    sys.path.append(BASE_PATH.as_posix())
-    print(SRC_PATH, SRC_PATH.exists(), file=sys.stderr)
-
     from media_parser.models import ParserType
     from media_parser.parsers import BaseParser
 
@@ -179,22 +176,26 @@ def parser_config(_: Sphinx):
     ]
 
     for parser_type, params in config.items():
-        text.append(
+        text += [
             f"## [{ParserType[parser_type.upper()].value}]"
-            f"(#media_parser.models.medias.ParserType.{parser_type.upper()})"
-        )
-        text.append("")
-        text.append(params["description"])
-        text.append("")
-        text.append(f"**Key**: `{parser_type}`")
-        text.append("")
-        text.append("**Properties**:")
-        text.append("")
+            f"(#media_parser.models.medias.ParserType.{parser_type.upper()})",
+            "",
+            params["description"],
+            "",
+            f"**Key**: `{parser_type}`",
+            "",
+            "**Properties**:",
+            "",
+        ]
+
         if not params["properties"]:
-            text.append("Does not have any properties.")
-            text.append("")
-            text.append("----")
-            text.append("")
+            text += [
+                "Does not have any properties.",
+                "",
+                "----",
+                "",
+            ]
+
             continue
 
         required = params.get("required", [])
@@ -202,23 +203,30 @@ def parser_config(_: Sphinx):
             text.append(f"``````{{object}} {name}")
 
             if name in required:
-                text.append(f"**This field is required to enable `{parser_type}` parser!**")
-                text.append("")
-
-            text.append(value.get("description", ""))
-            text.append("")
-            text.append(f"**type**: `{type_to_string(value['type'])}`{{l=python}}")
-            text.append("")
+                text += [
+                    f"**This field is required to enable `{parser_type}` parser!**",
+                    "",
+                ]
+            text += [
+                value.get("description", ""),
+                "",
+                f"**type**: `{type_to_string(value['type'])}`{{l=python}}",
+                "",
+            ]
             ph = type("placeholder", (), {})
             default = value.get("default", ph)
 
             if default is not ph:
                 text.append(f"**default**: `{default!r}`{{l=python}}")
-            text.append("``````")
-            text.append("")
-        text.append("")
-        text.append("----")
-        text.append("")
+            text += [
+                "``````",
+                "",
+            ]
+        text += [
+            "",
+            "----",
+            "",
+        ]
     path = SPHINX_SOURCE_PATH / "apidocs" / "parsers-config.md"
     path.parent.mkdir(exist_ok=True, parents=True)
     with path.open("w", encoding="utf-8") as f:
@@ -239,3 +247,27 @@ def type_to_string(type_: str) -> str:
     if type_ == "string":
         return "str"
     return type_
+
+
+swagger = [
+    {
+        "name": "Service API",
+        "page": "openapi",
+        "id": "my-page",
+        "options": {
+            "url": "specs/openapi.yml",
+        },
+    }
+]
+
+redoc_uri = "https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js"
+
+redoc = [
+    {
+        # "name": "Media API",
+        "page": "usage/api",
+        "spec": "specs/openapi.json",
+        "embed": True,
+        "opts": {"hide-hostname": True, "hide-loading": True},
+    }
+]
