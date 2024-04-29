@@ -52,7 +52,7 @@ class MongoConfig(BaseConfig):
     collection: str | None = None
     allow_population_by_field_name = True
     arbitrary_types_allowed = True
-    json_encoders = {ObjectId: str}  # noqa: RUF012
+    json_encoders = {ObjectId: str}
 
 
 class MongoModel(BaseModel, Generic[ID]):

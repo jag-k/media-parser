@@ -49,7 +49,7 @@ async def stream_media(media: Media) -> Iterator[bytes]:
     async with aiohttp.ClientSession() as session:
         async with session.get(media.url, headers=media.headers) as res:
             print(res.headers)
-            async for (content, b) in res.content.iter_chunks():
+            async for content, b in res.content.iter_chunks():
                 yield content
 
 
