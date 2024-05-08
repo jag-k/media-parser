@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "media-parser"
-version = "2.0.3"
+version = "2.0.4"
 description = "API for parsing media from social networks"
 authors = ["Jag_k <me@jagk.dev>"]
 maintainers = ["Jag_k <me@jagk.dev>"]
@@ -21,7 +21,7 @@ classifiers = [
 ]
 homepage = "https://github.com/jag-k/media-parser#readme"
 repository = "https://github.com/jag-k/media-parser"
-documentation = "https://media-parser.rtfd.io"
+documentation = "https://jag-k.github.io/media-parser"
 readme = "README.md"
 license = "MIT"
 keywords = ["media-parser", "poetry", "tiktok", "youtube", "reddit", "twitter"]

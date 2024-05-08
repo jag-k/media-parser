@@ -1,6 +1,5 @@
 import datetime
 import json
-import os
 import re
 import sys
 from pathlib import Path
@@ -88,7 +87,7 @@ html_theme_options = {
     "source_directory": "docs/source",
 }
 
-ogp_site_url = os.getenv("READTHEDOCS_CANONICAL_URL", poetry["documentation"])
+ogp_site_url = poetry["documentation"]
 # ogp_image = "_static/og.png"
 ogp_social_cards = {
     "enable": True,
