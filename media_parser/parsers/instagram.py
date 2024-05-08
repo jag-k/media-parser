@@ -7,7 +7,8 @@ from re import Match, Pattern
 import aiohttp
 from pydantic import BaseModel, Field
 
-from ..models import Media, ParserType, Video
+from media_parser.models import Media, ParserType, Video
+
 from .base import BaseParser as BaseParser
 from .base import MediaCache
 
@@ -89,7 +90,7 @@ class InstagramParser(BaseParser, BaseModel, type=ParserType.INSTAGRAM):
                     for node in shortcode_media.get("edge_media_to_caption", {}).get("edges", [])
                 ]
             ).strip()
-        url = shortcode_media.get("video_url", None)
+        url: str | None = shortcode_media.get("video_url", None)
         if not url:
             return []
 
@@ -134,7 +135,8 @@ class InstagramParser(BaseParser, BaseModel, type=ParserType.INSTAGRAM):
         if not data:
             return []
 
-        if not (url := data.get("video_url", None)):
+        url: str | None = data.get("video_url", None)
+        if not url:
             logger.info("%s is not a video", original_url)
             return []
 

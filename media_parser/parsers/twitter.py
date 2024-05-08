@@ -5,7 +5,8 @@ from re import Match
 import aiohttp
 from pydantic import BaseModel, Field
 
-from ..models import Media, ParserType, Video
+from media_parser.models import Media, ParserType, Video
+
 from .base import BaseParser as BaseParser
 from .base import MediaCache
 
@@ -13,6 +14,8 @@ logger = logging.getLogger(__name__)
 
 # https://twitter.com/Yoda4ever/status/1580609309217628160
 TWITTER_RE = re.compile(r"(?:https?://)?(?:www\.)?twitter\.com/(?P<user>\w+)/status/(?P<id>\d+)")
+# https://x.com/Yoda4ever/status/1580609309217628160
+X_RE = re.compile(r"(?:https?://)?(?:www\.)?x\.com/(?P<user>\w+)/status/(?P<id>\d+)")
 
 
 class TwitterParser(BaseParser, BaseModel, type=ParserType.TWITTER):
@@ -21,6 +24,7 @@ class TwitterParser(BaseParser, BaseModel, type=ParserType.TWITTER):
     def reg_exps(self):
         return [
             TWITTER_RE,
+            X_RE,
             # https://t.co/sOHvySZwUo
             re.compile(r"(?:https?://)?t\.co/(?P<tco_id>\w+)"),
         ]

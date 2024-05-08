@@ -1,84 +1,106 @@
 {
-  "title": "ParserSchema",
-  "type": "object",
+  "additionalProperties": true,
   "properties": {
     "instagram": {
-      "title": "InstagramParser",
       "description": "Parser for Instagram",
-      "type": "object",
       "properties": {
         "instagram_saas_token": {
-          "title": "Instagram Saas Token",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
           "description": "Set this for enable instagram proxy",
-          "type": "string"
+          "title": "Instagram Saas Token"
         },
         "instagram_saas_api": {
-          "title": "Instagram Saas Api",
-          "description": "Set this to change instagram saas api",
           "default": "https://api.lamadava.com",
+          "description": "Set this to change instagram saas api",
+          "title": "Instagram Saas Api",
           "type": "string"
         },
         "user_agent": {
-          "title": "User Agent",
-          "description": "Set this to change user agent",
           "default": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36",
+          "description": "Set this to change user agent",
+          "title": "User Agent",
           "type": "string"
         }
-      }
+      },
+      "title": "InstagramParser",
+      "type": "object"
     },
     "reddit": {
-      "title": "RedditParser",
       "description": "Parser for Reddit",
-      "type": "object",
       "properties": {
         "user_agent": {
-          "title": "User Agent",
-          "description": "User agent for Reddit API",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "default": "video downloader (by u/Jag_k)",
-          "type": "string"
+          "description": "User agent for Reddit API",
+          "title": "User Agent"
         },
         "client_id": {
-          "title": "Client Id",
           "description": "Client ID for Reddit API",
+          "title": "Client Id",
           "type": "string"
         },
         "client_secret": {
-          "title": "Client Secret",
           "description": "Client secret for Reddit API",
+          "title": "Client Secret",
           "type": "string"
         }
       },
       "required": [
         "client_id",
         "client_secret"
-      ]
+      ],
+      "title": "RedditParser",
+      "type": "object"
     },
     "tiktok": {
-      "title": "TiktokParser",
       "description": "Parser for TikTok",
-      "type": "object",
-      "properties": {}
+      "properties": {
+        "user_agent": {
+          "default": "com.ss.android.ugc.trill/494+Mozilla/5.0+(Linux;+Android+12;+2112123G+Build/SKQ1.211006.001;+wv)+AppleWebKit/537.36+(KHTML,+like+Gecko)+Version/4.0+Chrome/107.0.5304.105+Mobile+Safari/537.36",
+          "title": "User Agent",
+          "type": "string"
+        }
+      },
+      "title": "TiktokParser",
+      "type": "object"
     },
     "twitter": {
-      "title": "TwitterParser",
       "description": "Parser for Twitter",
-      "type": "object",
       "properties": {
         "twitter_bearer_token": {
-          "title": "Twitter Bearer Token",
           "description": "Bearer token for Twitter API",
+          "title": "Twitter Bearer Token",
           "type": "string"
         }
       },
       "required": [
         "twitter_bearer_token"
-      ]
+      ],
+      "title": "TwitterParser",
+      "type": "object"
     },
     "youtube": {
-      "title": "YoutubeParser",
       "description": "Parser for YouTube",
-      "type": "object",
-      "properties": {}
+      "properties": {},
+      "title": "YoutubeParser",
+      "type": "object"
     }
-  }
+  },
+  "title": "ParserSchema",
+  "type": "object"
 }

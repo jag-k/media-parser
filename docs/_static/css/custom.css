@@ -1,0 +1,5 @@
+/* Make `required` gray and unselectable */
+span.sig-name.descname > span.pre:nth-child(2) {
+    color: gray;
+    user-select: none;
+}

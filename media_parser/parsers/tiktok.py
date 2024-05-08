@@ -6,11 +6,12 @@ from typing import Literal
 
 import aiohttp
 from aiohttp import ClientSession
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-from ..context import MAX_SIZE
-from ..models import Image, Media, ParserType, Video
-from ..utils import generate_timer
+from media_parser.context import MAX_SIZE
+from media_parser.models import Image, Media, ParserType, Video
+from media_parser.utils import generate_timer
+
 from .base import BaseParser as BaseParser
 from .base import MediaCache
 
@@ -21,10 +22,12 @@ TT_USER_AGENT = (
     "+AppleWebKit/537.36+(KHTML,+like+Gecko)+Version/4.0+Chrome/107.0.5304.105+Mobile+Safari/537.36"
 )
 
-time_it = generate_timer(logger, True)
+time_it = generate_timer(logger)
 
 
 class TiktokParser(BaseParser, BaseModel, type=ParserType.TIKTOK):
+    user_agent: str = Field(default=TT_USER_AGENT)
+
     def reg_exps(self):
         return [
             # https://www.tiktok.com/t/ZS8s7cPmd/
@@ -68,7 +71,7 @@ class TiktokParser(BaseParser, BaseModel, type=ParserType.TIKTOK):
             author, video_id = video_location
 
         else:
-            author = m.get("author", "").lower()
+            author = str(m.get("author", "")).lower()
             video_id: int = int(m.get("video_id"))
             original_url = f"https://www.tiktok.com/@{author}/video/{video_id}"
 

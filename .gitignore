@@ -1,4 +1,6 @@
 .idea/
+.vscode/
+.fleet/
 __pycache__/
 *.py[cod]
 dist/
@@ -7,3 +9,9 @@ __pypackages__/
 
 config/
 !**/.gitkeep
+
+*.local
+*.local.*
+
+*.private
+*.private.*

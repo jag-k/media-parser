@@ -2,12 +2,9 @@ import functools
 import logging
 import time
 
-import sentry_sdk
-from sentry_sdk.tracing import Transaction
 
-
-def generate_timer(logger: logging.Logger | None = None, transaction: Transaction | bool | None = None):
-    return functools.partial(Timer, logger=logger, transaction=transaction)
+def generate_timer(logger: logging.Logger | None = None):
+    return functools.partial(Timer, logger=logger)
 
 
 def timeit(func):
@@ -24,7 +21,6 @@ class Timer:
         self,
         name,
         logger: logging.Logger | bool | None = None,
-        transaction: Transaction | bool | None = None,
     ):
         self.name = name
 
@@ -33,19 +29,11 @@ class Timer:
 
         self.logger = logger
 
-        if transaction and not isinstance(transaction, Transaction):
-            transaction = sentry_sdk.Hub.current.scope.transaction
-
-        self.transaction = transaction
-
     def __enter__(self):
         self.start = time.time()
 
     def __exit__(self, *args):
         self.end = time.time()
-
-        if self.transaction:
-            self.transaction.set_measurement(self.name, self.end - self.start, "seconds")
 
         if self.logger:
             self.logger.debug(f"{self.name} took {self.end - self.start} seconds")

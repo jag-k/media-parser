@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import StrEnum
 from typing import Self
 
 from pydantic import BaseModel, Field
@@ -13,9 +13,9 @@ __all__ = (
 )
 
 
-class ParserType(str, Enum):
+class ParserType(StrEnum):
     """
-    BaseParser types. Using for identify parsers and .
+    BaseParser types. Using for identify parsers.
     """
 
     TIKTOK = "TikTok"
@@ -64,13 +64,13 @@ class Video(Media):
     """
     Video media.
 
-    :param max_quality_url: URL to max quality video
-    :info max_quality_url: If max quality video is not available, max_quality_url is equal to url
-    :param audio_url: URL to audio from video
+    :param max_quality_url: URL to max quality video.
+    :info max_quality_url: If max quality video is not available, max_quality_url is equal to url.
+    :param audio_url: URL to audio from video.
     :info audio_url: Is it necessary?
-    :param height: Height of video
-    :param width: Width of video
-    :param duration: Duration of video
+    :param height: Height of video.
+    :param width: Width of video.
+    :param duration: Duration of video.
     """
 
     max_quality_url: str | None = None
@@ -89,10 +89,10 @@ class Image(Media):
     """
     Image media.
 
-    :param max_quality_url: URL to max quality image
-    :info max_quality_url: If max quality image is not available, max_quality_url is equal to url
-    :param height: Height of image
-    :param width: Width of image
+    :param max_quality_url: URL to max quality image.
+    :info max_quality_url: If max quality image is not available, max_quality_url is equal to url.
+    :param height: Height of image.
+    :param width: Width of image.
     """
 
     max_quality_url: str | None = None
@@ -111,7 +111,7 @@ class Audio(Media):
     """
     Audio media.
 
-    :param mime_type: MIME type of audio
+    :param mime_type: MIME type of audio.
     """
 
     mime_type: str = "audio/mpeg"
@@ -131,10 +131,10 @@ class GroupedMedia(BaseModel):
     @classmethod
     def from_medias(cls, medias: list[Media]) -> Self:
         """
-        Generate GroupedMedia from list of Media.
+        Generate GroupedMedia from a list of Media.
 
-        :param medias: list of Media
-        :return: GroupedMedia
+        :param medias: List of Media.
+        :return: Grouped Media.
         """
 
         return cls(
@@ -152,7 +152,7 @@ class GroupedMedia(BaseModel):
 
     def flat(self) -> list[Media]:
         """
-        Makes list of Media from GroupedMedia.
+        Makes a list of Media from GroupedMedia.
         """
 
         return self.audios + self.images + self.videos
@@ -161,14 +161,14 @@ class GroupedMedia(BaseModel):
         """
         Return count of all medias.
         """
-        return len(self.audios + self.images + self.videos)
+        return len(self.audios) + len(self.images) + len(self.videos)
 
     def __add__(self, other: Self) -> Self:
         """
         Concatenate two GroupedMedia.
 
-        :param other: GroupedMedia
-        :return: GroupedMedia
+        :param other: GroupedMedia.
+        :return: GroupedMedia.
         """
 
         return GroupedMedia(
@@ -178,7 +178,7 @@ class GroupedMedia(BaseModel):
         )
 
     @classmethod
-    def merge(cls, *grouped_medias: "GroupedMedia") -> "GroupedMedia":
+    def merge(cls, *grouped_medias: Self) -> Self:
         return GroupedMedia(
             audios=[audio for groups in grouped_medias for audio in groups.audios],
             images=[image for groups in grouped_medias for image in groups.images],

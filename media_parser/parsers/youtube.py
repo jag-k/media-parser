@@ -10,8 +10,9 @@ from pydantic import BaseModel
 from pytube import StreamQuery
 from pytube.exceptions import PytubeError
 
-from ..context import get_max_size
-from ..models import Media, ParserType, Video
+from media_parser.context import get_max_size
+from media_parser.models import Media, ParserType, Video
+
 from .base import BaseParser as BaseParser
 from .base import MediaCache
 

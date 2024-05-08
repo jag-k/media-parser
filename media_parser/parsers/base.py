@@ -3,38 +3,38 @@ import json
 import logging
 import re
 import time
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from re import Match, Pattern
-from typing import Any, Self
+from typing import Any, ClassVar, Required, Self, TypedDict
 
 import aiohttp
-import yaml
-from pydantic import BaseConfig, BaseModel, Extra
+from motor.motor_asyncio import AsyncIOMotorCollection
+from pydantic import BaseModel, ConfigDict
 
-from ..database import GroupedMediaModel
-from ..models import Media, ParserType
-from ..models.server import MediaNotFoundReason
-from ..settings import PARSERS_PATH, PARSERS_YAML_PATH, PARSERS_YML_PATH
-from ..utils import generate_timer
+from media_parser.database import GroupedMediaModel, MongoModelController
+from media_parser.models import Media, ParserType
+from media_parser.utils import generate_timer
 
 logger = logging.getLogger(__name__)
-time_it = generate_timer(logger, True)
+time_it = generate_timer(logger)
 
 
 class MediaCache:
-    def __init__(self, use_cache: bool = True):
-        self._use_cache = use_cache
+    def __init__(self, cache_collection: AsyncIOMotorCollection | None = None):
+        self.controller: MongoModelController[str, GroupedMediaModel] | None = None
+        if cache_collection:
+            self.controller = GroupedMediaModel.controller(collection=cache_collection)
 
     class FoundCache(Exception):  # noqa: N818
-        def __init__(self, medias: list[Media], original_url: str, *args):
+        def __init__(self, medias: list[Media], original_url: str, *args) -> None:
             super().__init__(medias, original_url, *args)
             self.medias = medias
             self.original_url = original_url
 
-    async def find_by_original_url(self, original_url: str | None = None):
-        if not self._use_cache or not original_url:
+    async def find_by_original_url(self, original_url: str | None = None) -> None:
+        if not self.controller or not original_url:
             return
-        data = await GroupedMediaModel.find(original_url)
+        data: GroupedMediaModel | None = await self.controller.find(original_url)
         if data:
             raise self.FoundCache(
                 medias=data.flat(),
@@ -42,22 +42,23 @@ class MediaCache:
             )
 
     async def save(self, media: Media) -> Media:
-        if not self._use_cache:
-            return media
-        res = await GroupedMediaModel.from_medias([media]).save()
-        logger.info("Saved item to cache for %s", res)
-        return media
+        return (await self.save_group([media]))[0]
 
     async def save_group(self, medias: list[Media]) -> list[Media]:
-        if not self._use_cache:
+        if not self.controller:
             return medias
-        res = await GroupedMediaModel.from_medias(medias).save()
+        grouped_media = GroupedMediaModel.from_medias(medias)
+        res = await self.controller.save(grouped_media)
         logger.info("Saved %d item(s) to cache for %s", len(medias), res)
         return medias
 
 
-class BaseParser:
-    TYPE: ParserType
+class BaseParserConfig(TypedDict):
+    type: Required[ParserType]
+
+
+class BaseParser(ABC):
+    TYPE: ClassVar[ParserType]
 
     def __init__(self, *args, config: dict[str, dict[str, Any]] | None = None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -98,10 +99,10 @@ class BaseParser:
         self,
         session: aiohttp.ClientSession,
         string: str,
-        use_cache: bool = True,
+        cache_collection: AsyncIOMotorCollection | None = None,
     ) -> list[Media]:
         start_time = time.time()
-        cache = MediaCache(use_cache=use_cache)
+        cache = MediaCache(cache_collection=cache_collection)
 
         gather = [
             _get_media(session, parser, match, cache)
@@ -109,9 +110,6 @@ class BaseParser:
             for reg_exp in parser.reg_exps()
             if (match := reg_exp.match(string))
         ]
-
-        if not gather:
-            raise MediaNotFoundReason.not_matched.make_exc()
 
         with time_it("parsing"):
             result: list[Media] = [j for i in await asyncio.gather(*gather) for j in i if j]
@@ -121,32 +119,28 @@ class BaseParser:
             len(result),
             time.time() - start_time,
         )
-        if not result:
-            raise MediaNotFoundReason.service_response_empty.make_exc()
         return result
 
-    def __init_subclass__(cls, **kwargs):
+    def __init_subclass__(cls, **kwargs: BaseParserConfig):
         super().__init_subclass__()
-        t = kwargs.get("type", None)
+        t: ParserType | None = kwargs.get("type", None)
         if not t:
             raise ValueError("type is required")
 
         cls.TYPE = t
-        cls.__doc__ = "Parser for " + t.value
+        cls.__doc__ = "Parser for " + str(t.value)
 
     @classmethod
     def generate_schema(cls):
         import jsonref
 
         class ParserSchema(BaseModel):
-            __annotations__ = {parser.TYPE.value.lower(): parser | None for parser in cls.__subclasses__()}
-
-            class Config(BaseConfig):
-                extra = Extra.allow
-                smart_union = True
+            model_config = ConfigDict(extra="allow")
+            __annotations__ = {parser.TYPE.value.lower(): parser for parser in cls.__subclasses__()}
 
         schema = dict(jsonref.loads(ParserSchema.schema_json()))
-        schema.pop("definitions", None)
+        schema.pop("$defs", None)
+        schema.pop("required", None)
         return json.dumps(schema, indent=2, ensure_ascii=False)
 
     def __str__(self):
@@ -165,18 +159,3 @@ async def _get_media(
     except MediaCache.FoundCache as e:
         logger.info("Found cache for %s", e.original_url)
         return e.medias
-
-
-def create_parser(config: dict[str, dict[str, Any]] | None = None) -> BaseParser:
-    if config is None:
-        if PARSERS_PATH.exists():
-            with PARSERS_PATH.open("r", encoding="utf-8") as f:
-                config = json.load(f)
-        elif PARSERS_YAML_PATH.exists():
-            with PARSERS_YAML_PATH.open("r", encoding="utf-8") as f:
-                config = yaml.safe_load(f)
-        elif PARSERS_YML_PATH.exists():
-            with PARSERS_YML_PATH.open("r", encoding="utf-8") as f:
-                config = yaml.safe_load(f)
-
-    return BaseParser(config=config)

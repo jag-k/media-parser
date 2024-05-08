@@ -6,14 +6,11 @@ import sys
 from pathlib import Path
 from tomllib import load
 
-import yaml
 from sphinx.application import Sphinx
 
 PACKAGE_NAME = "media_parser"
 SPHINX_SOURCE_PATH = Path(__file__).resolve().parent
 BASE_PATH = SPHINX_SOURCE_PATH.parent
-SPEC_PATH = SPHINX_SOURCE_PATH / "specs"
-SPEC_PATH.mkdir(exist_ok=True, parents=True)
 
 with (BASE_PATH / "pyproject.toml").open("rb") as f:
     poetry = load(f)["tool"]["poetry"]
@@ -39,9 +36,6 @@ extensions = [
     "autodoc2",
     "sphinx_copybutton",
     "sphinxext.opengraph",
-    # "sphinxcontrib.openapi",
-    # "sphinxcontrib.redoc",
-    # "swagger_plugin_for_sphinx",
     "sphinx_inline_tabs",
     "sphinx.ext.duration",
     "sphinx.ext.coverage",
@@ -61,6 +55,9 @@ html_theme = "furo"
 html_logo = (SPHINX_SOURCE_PATH / "_static" / "logo.png").as_posix()
 html_static_path = [(SPHINX_SOURCE_PATH / "_static").as_posix()]
 html_search_options = {"type": "default"}
+html_css_files = [
+    "css/custom.css",
+]
 html_theme_options = {
     "navigation_with_keys": True,
     "footer_icons": [
@@ -125,10 +122,6 @@ autodoc2_packages = [
         "path": f"{AUTODOC2_RELATIVE_PATH}/models",
         "module": f"{PACKAGE_NAME}.models",
     },
-    {
-        "path": f"{AUTODOC2_RELATIVE_PATH}/client.py",
-        "module": f"{PACKAGE_NAME}.client",
-    },
 ]
 autodoc2_render_plugin = "myst"
 
@@ -145,23 +138,18 @@ This page contains auto-generated API reference documentation [^1].
 {%- endfor %}
 ```
 
-[^1]: Created with [sphinx-autodoc2](https://github.com/chrisjsewell/sphinx-autodoc2)"""
+[^1]: Created with [sphinx-autodoc2](https://github.com/chrisjsewell/sphinx-autodoc2)
+"""
 
 # https://github.com/sphinx-extensions2/sphinx-autodoc2/pull/29
 autodoc2_index_filename = "index.md"
 
 
 def setup(app: Sphinx):
-    from main import app as _app
     from pygments.lexers.data import JsonLexer
 
     app.add_lexer("json5", JsonLexer)
     app.connect("builder-inited", parser_config)
-    api = _app.openapi()
-    with (SPEC_PATH / "openapi.json").open("w", encoding="utf-8") as f:
-        json.dump(api, f, ensure_ascii=False, indent=2)
-    with (SPEC_PATH / "openapi.yml").open("w", encoding="utf-8") as f:
-        yaml.dump(api, f, allow_unicode=True)
 
 
 def parser_config(_: Sphinx):
@@ -203,14 +191,12 @@ def parser_config(_: Sphinx):
             text.append(f"``````{{object}} {name}")
 
             if name in required:
-                text += [
-                    f"**This field is required to enable `{parser_type}` parser!**",
-                    "",
-                ]
+                text[-1] += " (required)"
+            type_ = value.get("type", value.get("anyOf", [{}])[0].get("type", None))
             text += [
                 value.get("description", ""),
                 "",
-                f"**type**: `{type_to_string(value['type'])}`{{l=python}}",
+                f"**type**: `{type_to_string(type_)}`{{l=python}}",
                 "",
             ]
             ph = type("placeholder", (), {})
@@ -234,40 +220,11 @@ def parser_config(_: Sphinx):
 
 
 def type_to_string(type_: str) -> str:
-    if type_ == "array":
-        return "list"
-    if type_ == "integer":
-        return "int"
-    if type_ == "number":
-        return "float"
-    if type_ == "boolean":
-        return "bool"
-    if type_ == "object":
-        return "dict"
-    if type_ == "string":
-        return "str"
-    return type_
-
-
-swagger = [
-    {
-        "name": "Service API",
-        "page": "openapi",
-        "id": "my-page",
-        "options": {
-            "url": "specs/openapi.yml",
-        },
-    }
-]
-
-redoc_uri = "https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js"
-
-redoc = [
-    {
-        # "name": "Media API",
-        "page": "usage/api",
-        "spec": "specs/openapi.json",
-        "embed": True,
-        "opts": {"hide-hostname": True, "hide-loading": True},
-    }
-]
+    return {
+        "array": "list",
+        "integer": "int",
+        "number": "float",
+        "boolean": "bool",
+        "object": "dict",
+        "string": "str",
+    }.get(type_, type_)

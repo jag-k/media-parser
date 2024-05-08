@@ -1,32 +1,14 @@
 import logging
-from typing import Generic, Self, TypeVar
+from typing import Any, Self
 
-import pymongo
-from async_lru import alru_cache
+import pymongo.errors
 from bson import ObjectId
-from motor.motor_asyncio import AsyncIOMotorClient as Client
-from motor.motor_asyncio import AsyncIOMotorCollection as Collection
-from motor.motor_asyncio import AsyncIOMotorDatabase as Database
-from pydantic import BaseConfig, BaseModel, Field
-from pymongo.errors import CollectionInvalid
-
-from ..settings import mongo_settings as settings
-
-client = Client(settings.url)
-db: Database = client[settings.database]
+from motor.motor_asyncio import AsyncIOMotorCollection
+from pydantic import BaseModel, ConfigDict, Field, GetCoreSchemaHandler
+from pydantic_core import core_schema as cs
+from pymongo.results import DeleteResult, InsertOneResult, UpdateResult
 
 logger = logging.Logger(__name__)
-
-
-@alru_cache
-async def get_collection(name: str) -> Collection:
-    try:
-        collection = await db.create_collection(name)
-    except CollectionInvalid as e:
-        if e.args[0] != f"collection {name} already exists":
-            raise e
-        collection = db.get_collection(name)
-    return collection
 
 
 class PyObjectId(ObjectId):
@@ -41,59 +23,69 @@ class PyObjectId(ObjectId):
         return ObjectId(v)
 
     @classmethod
-    def __modify_schema__(cls, field_schema):
-        field_schema.update(type="string")
+    def __get_pydantic_core_schema__(cls, source_type: Any, handler: GetCoreSchemaHandler) -> cs.CoreSchema:
+        return cs.str_schema()
 
 
-ID = TypeVar("ID", bound=PyObjectId)
+class MongoModel[ID: PyObjectId](BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+        arbitrary_types_allowed=True,
+        json_encoders={ObjectId: str},
+    )
 
-
-class MongoConfig(BaseConfig):
-    collection: str | None = None
-    allow_population_by_field_name = True
-    arbitrary_types_allowed = True
-    json_encoders = {ObjectId: str}
-
-
-class MongoModel(BaseModel, Generic[ID]):
     id: ID = Field(default_factory=PyObjectId, alias="_id")
 
-    class Config(MongoConfig):
-        pass
-
     @classmethod
-    async def collection(cls) -> Collection:
-        return await get_collection(cls.Config.collection)
+    def controller(cls, collection: AsyncIOMotorCollection) -> "MongoModelController[ID, Self]":
+        return MongoModelController(collection, cls)
 
-    @classmethod
-    async def find(cls, object_id: ID | None) -> Self | None:
+
+class MongoModelController[ID, Model]:
+    def __init__(self, collection: AsyncIOMotorCollection, model: type[Model]):
+        self.collection = collection
+        self.model = model
+
+    async def find(self, object_id: ID | None) -> Model | None:
+        """Find method to retrieve an object by its ID.
+
+        :param object_id: The ID of the object to find.
+        :return: The found object if it exists, None otherwise.
+        """
         if not object_id:
             return None
         try:
-            col = await cls.collection()
-            res = await col.find_one({"_id": object_id})
-        except pymongo.errors.OperationFailure:
-            logger.error("Can't find collection %s", object_id, exc_info=True)
-            return None
-        if res is None:
-            return None
-        return cls.parse_obj(res)
+            return self.model.model_validate(await self.collection.find_one({"_id": object_id}))
+        except pymongo.errors.OperationFailure as exc:
+            logger.error("Can't find collection %s", object_id, exc_info=exc)
+        return None
 
-    async def delete(self):
-        try:
-            col = await self.collection()
-            return await col.delete_one({"_id": self.id})
-        except pymongo.errors.OperationFailure:
-            logger.error("Can't delete", exc_info=True)
-            return None
+    async def delete(self, obj: Model) -> DeleteResult | None:
+        """Delete method deletes a document from the collection.
 
-    async def save(self):
+        :returns: If the deletion is successful, returns a DeleteResult object representing the deletion operation.
+        If an error occurs during the deletion operation, logs the error and returns None.
+        """
         try:
-            col = await self.collection()
-            old = await col.find_one({"_id": self.id})
+            return await self.collection.delete_one({"_id": obj.id})
+        except pymongo.errors.OperationFailure as exc:
+            logger.error("Can't delete", exc_info=exc)
+        return None
+
+    async def save(self, obj: Model) -> UpdateResult | InsertOneResult | None:
+        """Save the current document instance to the collection.
+
+        :returns: Update or InsertOne result.
+        None if it can't be saved.
+        """
+        try:
+            old = await self.collection.find_one({"_id": obj.id})
             if old:
-                return await col.update_one({"_id": self.id}, {"$set": self.dict(by_alias=True)})
-            return await col.insert_one(self.dict(by_alias=True))
-        except pymongo.errors.OperationFailure:
-            logger.error("Can't save", exc_info=True)
-            return None
+                return await self.collection.update_one(
+                    {"_id": obj.id},
+                    {"$set": obj.model_dump(by_alias=True)},
+                )
+            return await self.collection.insert_one(obj.model_dump(by_alias=True))
+        except pymongo.errors.OperationFailure as exc:
+            logger.error("Can't save", exc_info=exc)
+        return None
