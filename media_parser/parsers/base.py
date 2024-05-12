@@ -9,7 +9,7 @@ from typing import Any, ClassVar, Required, Self, TypedDict
 
 import aiohttp
 from motor.motor_asyncio import AsyncIOMotorCollection
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, PrivateAttr
 
 from media_parser.database import GroupedMediaModel, MongoModelController
 from media_parser.models import Media, ParserType
@@ -57,19 +57,23 @@ class BaseParserConfig(TypedDict):
     type: Required[ParserType]
 
 
-class BaseParser(ABC):
+class BaseParser(ABC, BaseModel):
     TYPE: ClassVar[ParserType]
+    _parsers: list["BaseParser"] = PrivateAttr(default_factory=list)
 
     def __init__(self, *args, config: dict[str, dict[str, Any]] | None = None, **kwargs):
         super().__init__(*args, **kwargs)
         if config is None:
             config = {}
+
         if type(self) is BaseParser:
             self._parsers: list[BaseParser] = [
                 parser(**conf)
                 for parser in BaseParser.__subclasses__()
                 if (conf := config.get(parser.TYPE.value.lower(), None)) is not None
             ]
+        else:
+            self._parsers = [self]
 
     def supported(self) -> dict[ParserType, bool]:
         return {parser.TYPE: parser._is_supported() for parser in self._parsers}

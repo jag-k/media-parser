@@ -3,12 +3,10 @@ import re
 from re import Match
 
 import aiohttp
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from media_parser.models import Media, ParserType, Video
-
-from .base import BaseParser as BaseParser
-from .base import MediaCache
+from media_parser.parsers.base import BaseParser, MediaCache
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +16,7 @@ TWITTER_RE = re.compile(r"(?:https?://)?(?:www\.)?twitter\.com/(?P<user>\w+)/sta
 X_RE = re.compile(r"(?:https?://)?(?:www\.)?x\.com/(?P<user>\w+)/status/(?P<id>\d+)")
 
 
-class TwitterParser(BaseParser, BaseModel, type=ParserType.TWITTER):
+class TwitterParser(BaseParser, type=ParserType.TWITTER):
     twitter_bearer_token: str = Field(..., description="Bearer token for Twitter API")
 
     def reg_exps(self):

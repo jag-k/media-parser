@@ -6,20 +6,17 @@ from re import Match
 import aiohttp
 import httpx
 import pytube
-from pydantic import BaseModel
 from pytube import StreamQuery
 from pytube.exceptions import PytubeError
 
 from media_parser.context import get_max_size
 from media_parser.models import Media, ParserType, Video
-
-from .base import BaseParser as BaseParser
-from .base import MediaCache
+from media_parser.parsers.base import BaseParser, MediaCache
 
 logger = logging.getLogger(__name__)
 
 
-class YoutubeParser(BaseParser, BaseModel, type=ParserType.YOUTUBE):
+class YoutubeParser(BaseParser, type=ParserType.YOUTUBE):
     def reg_exps(self):
         return [
             # https://www.youtube.com/watch?v=TCrP1SE2DkY

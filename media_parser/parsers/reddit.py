@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import re
 from re import Match, Pattern
@@ -5,17 +6,15 @@ from urllib.parse import urlparse
 
 import aiohttp
 from aiohttp import InvalidURL
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from media_parser.models import Media, ParserType, Video
-
-from .base import BaseParser as BaseParser
-from .base import MediaCache
+from media_parser.parsers.base import BaseParser, MediaCache
 
 logger = logging.getLogger(__name__)
 
 
-class RedditParser(BaseParser, BaseModel, type=ParserType.REDDIT):
+class RedditParser(BaseParser, type=ParserType.REDDIT):
     user_agent: str | None = Field("video downloader (by u/Jag_k)", description="User agent for Reddit API")
     client_id: str = Field(..., description="Client ID for Reddit API")
     client_secret: str = Field(..., description="Client secret for Reddit API")
@@ -129,3 +128,17 @@ def id_from_url(url: str) -> str:
     if not submission_id.isalnum():
         raise InvalidURL(url)
     return submission_id
+
+
+if __name__ == "__main__":
+
+    async def main():
+        async with aiohttp.ClientSession() as session:
+            print(
+                await RedditParser().parse(
+                    session,
+                    "www.reddit.com/r/redditdev/comments/2gmzqe/praw_https/",
+                )
+            )
+
+    asyncio.run(main())

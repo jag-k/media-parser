@@ -5,19 +5,17 @@ import re
 from re import Match, Pattern
 
 import aiohttp
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from media_parser.models import Media, ParserType, Video
-
-from .base import BaseParser as BaseParser
-from .base import MediaCache
+from media_parser.parsers.base import BaseParser, MediaCache
 
 logger = logging.getLogger(__name__)
 
 USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36"
 
 
-class InstagramParser(BaseParser, BaseModel, type=ParserType.INSTAGRAM):
+class InstagramParser(BaseParser, type=ParserType.INSTAGRAM):
     instagram_saas_token: str | None = Field(default=None, description="Set this for enable instagram proxy")
     instagram_saas_api: str = Field(
         default="https://api.lamadava.com", description="Set this to change instagram saas api"

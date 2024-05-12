@@ -6,14 +6,12 @@ from typing import Literal
 
 import aiohttp
 from aiohttp import ClientSession
-from pydantic import BaseModel, Field
+from pydantic import Field
 
-from media_parser.context import MAX_SIZE
+from media_parser.context import get_max_size
 from media_parser.models import Image, Media, ParserType, Video
+from media_parser.parsers.base import BaseParser, MediaCache
 from media_parser.utils import generate_timer
-
-from .base import BaseParser as BaseParser
-from .base import MediaCache
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +23,7 @@ TT_USER_AGENT = (
 time_it = generate_timer(logger)
 
 
-class TiktokParser(BaseParser, BaseModel, type=ParserType.TIKTOK):
+class TiktokParser(BaseParser, type=ParserType.TIKTOK):
     user_agent: str = Field(default=TT_USER_AGENT)
 
     def reg_exps(self):
@@ -36,7 +34,9 @@ class TiktokParser(BaseParser, BaseModel, type=ParserType.TIKTOK):
             # https://vm.tiktok.com/ZSRq1jcrg/
             re.compile(r"(?:https?://)?(?:(?P<domain>[a-z]{2})\.)?tiktok\.com/(?P<id>\w+)/?"),
             # https://www.tiktok.com/@thejoyegg/video/7136001098841591041
-            re.compile(r"(?:https?://)?(?:www\.)?tiktok\.com/@(?P<author>\w+)/video/(?P<video_id>\d+)/?"),
+            re.compile(
+                r"(?:https?://)?(?:www\.)?tiktok\.com/@(?P<author>\w+)/(?P<type_of>video|photo)/(?P<video_id>\d+)/?"
+            ),
         ]
 
     def _is_supported(self) -> bool:
@@ -85,7 +85,7 @@ class TiktokParser(BaseParser, BaseModel, type=ParserType.TIKTOK):
 
         try:
             with time_it("tiktok_get_video_data"):
-                data: dict = await self._get_video_data(video_id)
+                data: dict = await self._get_media_data(session, video_id)
 
         except Exception as e:
             logger.exception(
@@ -118,10 +118,7 @@ class TiktokParser(BaseParser, BaseModel, type=ParserType.TIKTOK):
     def _process_video(self, data: dict, original_url: str) -> list[Video]:
         max_quality_url = data.get("video_data", {}).get("nwm_video_url_HQ")
 
-        try:
-            max_size = float(MAX_SIZE.get("inf"))
-        except ValueError:
-            max_size = float("inf")
+        max_size = get_max_size()
 
         try:
             url: str | None = max(
@@ -198,26 +195,29 @@ class TiktokParser(BaseParser, BaseModel, type=ParserType.TIKTOK):
         return author, int(base)
 
     @staticmethod
-    async def _get_video_data(video_id: int) -> dict:
-        async with ClientSession(
-            headers={
-                "Accept": "application/json",
-                "User-Agent": TT_USER_AGENT,
-            }
-        ) as session:
-            async with session.get(
-                "https://api16-normal-c-useast1a.tiktokv.com/aweme/v1/feed/",
-                params={
-                    "aweme_id": video_id,
-                },
-            ) as resp:
-                raw_data: dict = await resp.json()
-            if not raw_data:
-                logger.error("Empty response with %r", resp.url)
-                return {}
+    async def _get_media_data(session: ClientSession, video_id: int) -> dict:
+        async with session.get(
+            "https://api16-normal-c-useast1a.tiktokv.com/aweme/v1/feed/",
+            params={
+                "iid": "7318518857994389254",
+                "device_id": "7318517321748022790",
+                "channel": "googleplay",
+                "app_name": "musical_ly",
+                "version_code": "300904",
+                "device_platform": "android",
+                "device_type": "ASUS_Z01QD",
+                "os_version": "9",
+                "aweme_id": video_id,
+            },
+        ) as resp:
+            raw_data: dict = await resp.json()
+        if not raw_data:
+            logger.error("Empty response with %r", resp.url)
+            return {}
         if not raw_data.get("aweme_list", []):
             logger.info("No aweme_list in response")
             return {}
+
         data = raw_data["aweme_list"][0]
         url_type_code = data["aweme_type"]
         url_type_code_dict = {
@@ -269,12 +269,11 @@ class TiktokParser(BaseParser, BaseModel, type=ParserType.TIKTOK):
 if __name__ == "__main__":
 
     async def main():
-        parser = TiktokParser()
         async with ClientSession() as session:
             print(
-                await parser.parse(
+                await TiktokParser().parse(
                     session,
-                    "https://vm.tiktok.com/ZMYQFQBQ9/",
+                    "https://www.tiktok.com/@kastella_/photo/7364744013653527814",
                 )
             )
 
