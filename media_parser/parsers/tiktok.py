@@ -8,7 +8,7 @@ import aiohttp
 from aiohttp import ClientSession
 from pydantic import Field
 
-from media_parser.context import get_max_size
+from media_parser.context import MAX_SIZE
 from media_parser.models import Image, Media, ParserType, Video
 from media_parser.parsers.base import BaseParser, MediaCache
 from media_parser.utils import generate_timer
@@ -118,7 +118,7 @@ class TiktokParser(BaseParser, type=ParserType.TIKTOK):
     def _process_video(self, data: dict, original_url: str) -> list[Video]:
         max_quality_url = data.get("video_data", {}).get("nwm_video_url_HQ")
 
-        max_size = get_max_size()
+        max_size = MAX_SIZE.get()
 
         try:
             url: str | None = max(

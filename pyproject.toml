@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "media-parser"
-version = "2.1.0"
+version = "2.1.1"
 description = "API for parsing media from social networks"
 authors = ["Jag_k <me@jagk.dev>"]
 maintainers = ["Jag_k <me@jagk.dev>"]

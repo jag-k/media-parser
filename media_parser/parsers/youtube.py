@@ -9,7 +9,7 @@ import pytube
 from pytube import StreamQuery
 from pytube.exceptions import PytubeError
 
-from media_parser.context import get_max_size
+from media_parser.context import MAX_SIZE
 from media_parser.models import Media, ParserType, Video
 from media_parser.parsers.base import BaseParser, MediaCache
 
@@ -69,7 +69,7 @@ class YoutubeParser(BaseParser, type=ParserType.YOUTUBE):
         max_quality_url = stream.url
         max_fs = 0
 
-        max_size = get_max_size()
+        max_size = MAX_SIZE.get()
 
         for st in streams:
             logger.info("Stream: %s", st)
