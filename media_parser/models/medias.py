@@ -4,12 +4,12 @@ from typing import Self
 from pydantic import BaseModel, Field
 
 __all__ = (
-    "ParserType",
-    "Media",
-    "Video",
-    "Image",
     "Audio",
     "GroupedMedia",
+    "Image",
+    "Media",
+    "ParserType",
+    "Video",
 )
 
 

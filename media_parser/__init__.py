@@ -3,11 +3,11 @@ from .parsers import *
 
 __all__ = [
     "Audio",
+    "BaseParser",
     "GroupedMedia",
     "Image",
     "Media",
+    "Media",
     "ParserType",
     "Video",
-    "Media",
-    "BaseParser",
 ]
